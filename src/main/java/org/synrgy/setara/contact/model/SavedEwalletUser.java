@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.synrgy.setara.common.model.Auditable;
 import org.synrgy.setara.user.model.EwalletUser;
+import org.synrgy.setara.user.model.User;
 
 @Getter
 @Setter
@@ -13,6 +14,14 @@ import org.synrgy.setara.user.model.EwalletUser;
 @Entity
 @Table(name = "tbl_saved_ewallet_users")
 public class SavedEwalletUser extends Auditable {
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(
+    name = "owner_id",
+    nullable = false,
+    referencedColumnName = "id"
+  )
+  private User owner;
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(

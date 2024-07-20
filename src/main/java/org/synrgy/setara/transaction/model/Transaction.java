@@ -52,10 +52,7 @@ public class Transaction extends Auditable {
 
   private BigDecimal adminFee;
 
-  @Column(
-    name = "reference_n0",
-    unique = true
-  )
+  @Column(unique = true)
   private String uniqueCode;
 
   @Column(

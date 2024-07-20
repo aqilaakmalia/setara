@@ -32,4 +32,6 @@ public class EwalletUser extends Auditable {
 
   private BigDecimal balance;
 
+  private String imagePath;
+
 }

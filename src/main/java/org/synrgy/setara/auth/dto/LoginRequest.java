@@ -18,17 +18,17 @@ public class LoginRequest {
     regexp = "^[a-zA-Z0-9]+$",
     message = "User ID can only have letters and numbers"
   )
-  private String uniqueId;
+  private String signature;
 
   @Size(
-    min = 6,
-    max = 6,
-    message = "MPIN must be {max} characters long"
+    min = 8,
+    max = 64,
+    message = "Password must be {min}-{max} characters long"
   )
   @Pattern(
-    regexp = "^\\d{6}$",
-    message = "MPIN can only have letters and numbers"
+    regexp = "^[a-zA-Z0-9!@#$%^&*()_\\-+=\\[\\]{}|;:'\",.<>/?\\\\]*$",
+    message = "Password can only have letters, numbers, and special characters"
   )
-  private String mpin;
+  private String password;
 
 }

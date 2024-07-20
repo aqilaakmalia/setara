@@ -28,9 +28,9 @@ public class AuthServiceImpl implements AuthService {
   @Override
   @Transactional
   public AuthResponse authenticate(LoginRequest request) {
-    User user = userRepo.findByUniqueId(request.getUniqueId()).orElse(null);
+    User user = userRepo.findBySignature(request.getSignature()).orElse(null);
     if (user == null) {
-      log.error("Unique ID {} not found", request.getUniqueId());
+      log.error("Unique ID {} not found", request.getSignature());
       throw new EntityNotFoundException("User not found");
     }
 

@@ -23,6 +23,16 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   Optional<User> findByEmail(String email);
 
-  Optional<User> findByUniqueId(String uniqueId);
+  Optional<User> findBySignature(String signature);
+
+  boolean existsByEmail(String email);
+
+  boolean existsBySignature(String signature);
+
+  boolean existsByAccountNumber(String accountNumber);
+
+  boolean existsByPhoneNumber(String phoneNumber);
+
+  boolean existsByNik(String nik);
 
 }

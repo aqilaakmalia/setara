@@ -57,7 +57,6 @@ public class User extends Auditable implements UserDetails {
   )
   private String password;
 
-  @Column(nullable = false)
   private String imagePath;
 
   @Column(
@@ -67,7 +66,10 @@ public class User extends Auditable implements UserDetails {
   )
   private String nik;
 
-  @Column(nullable = false)
+  @Column(
+    unique = true,
+    nullable = false
+  )
   private String phoneNumber;
 
   @Column(nullable = false)
@@ -80,7 +82,7 @@ public class User extends Auditable implements UserDetails {
 
   @Override
   public String getUsername() {
-    return email;
+    return signature;
   }
 
   @Override
