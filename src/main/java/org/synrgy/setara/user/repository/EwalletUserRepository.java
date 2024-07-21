@@ -20,4 +20,6 @@ public interface EwalletUserRepository extends JpaRepository<EwalletUser, UUID> 
   @Query("UPDATE EwalletUser eu SET eu.deletedAt = null WHERE eu.id = :id")
   void restoreById(@Param("id") UUID id);
 
+
+  boolean existsByNameAndPhoneNumber(String name, String phoneNumber);
 }
