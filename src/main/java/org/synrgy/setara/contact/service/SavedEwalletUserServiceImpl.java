@@ -76,7 +76,11 @@ public class SavedEwalletUserServiceImpl implements SavedEwalletUserService {
                         saved.getId(),
                         saved.getOwner().getId(),
                         saved.getEwalletUser().getId(),
-                        saved.isFavorite()
+                        saved.isFavorite(),
+                        saved.getEwalletUser().getName(),
+                        saved.getEwalletUser().getImagePath(),
+                        saved.getEwalletUser().getPhoneNumber(),
+                        saved.getEwalletUser().getEwallet().getName()
                 ))
                 .collect(Collectors.toList());
     }
