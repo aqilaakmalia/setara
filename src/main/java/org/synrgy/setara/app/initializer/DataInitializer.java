@@ -21,7 +21,7 @@ public class DataInitializer implements CommandLineRunner {
   public void run(String... args) throws Exception {
     userService.seedUser();
     ewalletService.seedEwallet();
-//    ewalletUserService.seedEwalletUsers();
-//    savedEwalletUserService.seedSavedEwalletUsers();
+    ewalletUserService.seedEwalletUsers();
+    savedEwalletUserService.seedSavedEwalletUsers();
   }
 }

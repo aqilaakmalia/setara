@@ -9,6 +9,7 @@ import org.synrgy.setara.contact.model.SavedEwalletUser;
 import org.synrgy.setara.user.model.EwalletUser;
 import org.synrgy.setara.user.model.User;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -23,4 +24,6 @@ public interface SavedEwalletUserRepository extends JpaRepository<SavedEwalletUs
   void restoreById(@Param("id") UUID id);
 
   boolean existsByOwnerAndEwalletUser(User owner, EwalletUser ewalletUser);
+
+  List<SavedEwalletUser> findByOwnerId(UUID ownerId);
 }
