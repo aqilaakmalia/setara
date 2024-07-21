@@ -22,39 +22,81 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void seedUser() {
-    final String email = "kdot@tde.com";
-    final String signature = "KDOT604T";
-    final String accountNumber = "1122334455";
-    final String nik = "1272051706870001";
-    final String phoneNumber = "+6281234567890";
+    // Data untuk pengguna pertama
+    createUserIfNotExists(
+            "kdot@tde.com",
+            "KDOT604T",
+            "1122334455",
+            "1272051706870001",
+            "+6281234567890",
+            "Kendrick Lamar",
+            "itsjustbigme",
+            "kendrick.jpg",
+            "Compton, CA",
+            BigDecimal.ZERO,
+            "170687"
+    );
 
+    // Data untuk pengguna kedua
+    createUserIfNotExists(
+            "jane.doe@example.com",
+            "JANE1234",
+            "2233445566",
+            "1272051706870002",
+            "+6289876543210",
+            "Jane Doe",
+            "jane123",
+            "jane.jpg",
+            "Los Angeles, CA",
+            BigDecimal.valueOf(5000),
+            "987654"
+    );
+
+    // Data untuk pengguna ketiga
+    createUserIfNotExists(
+            "john.smith@example.com",
+            "JOHN5678",
+            "3344556677",
+            "1272051706870003",
+            "+6281230987654",
+            "John Smith",
+            "john123",
+            "john.jpg",
+            "New York, NY",
+            BigDecimal.valueOf(10000),
+            "123456"
+    );
+  }
+
+  private void createUserIfNotExists(String email, String signature, String accountNumber, String nik,
+                                     String phoneNumber, String name, String password, String imagePath,
+                                     String address, BigDecimal balance, String mpin) {
     boolean userExists = userRepo.existsByEmail(email) ||
-        userRepo.existsBySignature(signature) ||
-        userRepo.existsByAccountNumber(accountNumber) ||
-        userRepo.existsByNik(nik) ||
-        userRepo.existsByPhoneNumber(phoneNumber);
+            userRepo.existsBySignature(signature) ||
+            userRepo.existsByAccountNumber(accountNumber) ||
+            userRepo.existsByNik(nik) ||
+            userRepo.existsByPhoneNumber(phoneNumber);
 
     if (userExists) {
-      log.info("kdot already exists in the system");
+      log.info("{} already exists in the system", email);
       return;
     }
 
     User user = User.builder()
-        .email(email)
-        .signature(signature)
-        .accountNumber(accountNumber)
-        .name("Kendrick Lamar")
-        .password(passwordEncoder.encode("itsjustbigme"))
-        .imagePath("kendrick.jpg")
-        .nik(nik)
-        .phoneNumber(phoneNumber)
-        .address("Compton, CA")
-        .balance(BigDecimal.ZERO)
-        .mpin("170687")
-        .build();
+            .email(email)
+            .signature(signature)
+            .accountNumber(accountNumber)
+            .name(name)
+            .password(passwordEncoder.encode(password))
+            .imagePath(imagePath)
+            .nik(nik)
+            .phoneNumber(phoneNumber)
+            .address(address)
+            .balance(balance)
+            .mpin(mpin)
+            .build();
 
     userRepo.save(user);
-    log.info("kdot has been added to the system");
+    log.info("{} has been added to the system", email);
   }
-
 }
