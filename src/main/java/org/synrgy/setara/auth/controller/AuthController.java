@@ -25,9 +25,7 @@ import org.synrgy.setara.common.utils.GenericResponse;
 public class AuthController {
 
   private final Logger log = LoggerFactory.getLogger(AuthController.class);
-
   private final AuthenticationManager authManager;
-
   private final AuthService authService;
 
   @PostMapping(
