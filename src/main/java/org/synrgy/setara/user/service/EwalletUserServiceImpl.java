@@ -27,19 +27,19 @@ public class EwalletUserServiceImpl implements EwalletUserService {
         List<EwalletUser> ewalletUsers = Arrays.asList(
                 EwalletUser.builder()
                         .name("User1")
-                        .phoneNumber("+6281234567890")
+                        .phoneNumber("081234567890")
                         .balance(BigDecimal.valueOf(10000))
                         .imagePath("/images/user1.png")
                         .build(),
                 EwalletUser.builder()
                         .name("User2")
-                        .phoneNumber("+6281234567891")
+                        .phoneNumber("081234567891")
                         .balance(BigDecimal.valueOf(20000))
                         .imagePath("/images/user2.png")
                         .build(),
                 EwalletUser.builder()
                         .name("User3")
-                        .phoneNumber("+6281234567892")
+                        .phoneNumber("081234567892")
                         .balance(BigDecimal.valueOf(30000))
                         .imagePath("/images/user3.png")
                         .build()
