@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.synrgy.setara.contact.dto.SavedEwalletUserDTO;
+import org.synrgy.setara.contact.dto.SavedEwalletUserResponse;
 import org.synrgy.setara.contact.model.SavedEwalletUser;
 import org.synrgy.setara.contact.repository.SavedEwalletUserRepository;
 import org.synrgy.setara.user.model.EwalletUser;
@@ -67,12 +67,16 @@ public class SavedEwalletUserServiceImpl implements SavedEwalletUserService {
         }
     }
 
-
     @Override
-    public List<SavedEwalletUserDTO> getSavedEwalletUsersForUser(User user) {
-        List<SavedEwalletUser> savedEwalletUsers = savedEwalletUserRepo.findByOwnerId(user.getId());
+    public List<SavedEwalletUserResponse> getSavedEwalletUsersForUser(User user, Boolean favorite) {
+        List<SavedEwalletUser> savedEwalletUsers;
+        if (favorite != null) {
+            savedEwalletUsers = savedEwalletUserRepo.findByOwnerIdAndFavorite(user.getId(), favorite);
+        } else {
+            savedEwalletUsers = savedEwalletUserRepo.findByOwnerId(user.getId());
+        }
         return savedEwalletUsers.stream()
-                .map(saved -> new SavedEwalletUserDTO(
+                .map(saved -> new SavedEwalletUserResponse(
                         saved.getId(),
                         saved.getOwner().getId(),
                         saved.getEwalletUser().getId(),

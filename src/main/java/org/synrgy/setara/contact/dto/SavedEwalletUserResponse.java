@@ -1,15 +1,13 @@
 package org.synrgy.setara.contact.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.UUID;
 
 @Getter
 @Setter
-public class SavedEwalletUserDTO {
+public class SavedEwalletUserResponse {
 
     private UUID id;
     private UUID ownerId;
@@ -20,9 +18,9 @@ public class SavedEwalletUserDTO {
     private String ewalletUserPhoneNumber;
     private String ewalletName;
 
-    public SavedEwalletUserDTO(UUID id, UUID ownerId, UUID ewalletUserId, boolean favorite,
-                               String ewalletUserName, String ewalletUserImagePath,
-                               String ewalletUserPhoneNumber, String ewalletName) {
+    public SavedEwalletUserResponse(UUID id, UUID ownerId, UUID ewalletUserId, boolean favorite,
+                                    String ewalletUserName, String ewalletUserImagePath,
+                                    String ewalletUserPhoneNumber, String ewalletName) {
         this.id = id;
         this.ownerId = ownerId;
         this.ewalletUserId = ewalletUserId;
