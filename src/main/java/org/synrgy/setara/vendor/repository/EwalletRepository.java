@@ -25,3 +25,4 @@ public interface EwalletRepository extends JpaRepository<Ewallet, UUID> {
 
   Optional<Ewallet> findByName(String name);
 }
+
