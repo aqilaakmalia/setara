@@ -22,4 +22,6 @@ public interface EwalletUserRepository extends JpaRepository<EwalletUser, UUID> 
   void restoreById(@Param("id") UUID id);
 
   Optional<EwalletUser> findByPhoneNumber(String phoneNumber);
+
+  boolean existsByNameAndPhoneNumber(String name, String phoneNumber);
 }

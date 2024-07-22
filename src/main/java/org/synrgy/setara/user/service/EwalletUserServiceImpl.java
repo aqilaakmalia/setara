@@ -1,6 +1,8 @@
 package org.synrgy.setara.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.synrgy.setara.user.model.EwalletUser;
 import org.synrgy.setara.user.repository.EwalletUserRepository;
@@ -8,35 +10,60 @@ import org.synrgy.setara.vendor.model.Ewallet;
 import org.synrgy.setara.vendor.repository.EwalletRepository;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class EwalletUserServiceImpl implements EwalletUserService{
-
-    private final EwalletUserRepository ewalletUserRepository;
-    private final EwalletRepository ewalletRepository;
+public class EwalletUserServiceImpl implements EwalletUserService {
+    private final Logger log = LoggerFactory.getLogger(EwalletUserServiceImpl.class);
+    private final EwalletUserRepository ewalletUserRepo;
+    private final EwalletRepository ewalletRepo;
 
     @Override
-    public void seedEwalletUser() {
-        Ewallet ovo = (Ewallet) ewalletRepository.findByName("OVO").orElseThrow(() -> new RuntimeException("Ewallet OVO not found"));
-        Ewallet dana = (Ewallet) ewalletRepository.findByName("DANA").orElseThrow(() -> new RuntimeException("Ewallet DANA not found"));
+    public void seedEwalletUsers() {
+        // Daftar pengguna dengan e-wallet "Ovo"
+        List<EwalletUser> ewalletUsers = Arrays.asList(
+                EwalletUser.builder()
+                        .name("User1")
+                        .phoneNumber("+6281234567890")
+                        .balance(BigDecimal.valueOf(10000))
+                        .imagePath("/images/user1.png")
+                        .build(),
+                EwalletUser.builder()
+                        .name("User2")
+                        .phoneNumber("+6281234567891")
+                        .balance(BigDecimal.valueOf(20000))
+                        .imagePath("/images/user2.png")
+                        .build(),
+                EwalletUser.builder()
+                        .name("User3")
+                        .phoneNumber("+6281234567892")
+                        .balance(BigDecimal.valueOf(30000))
+                        .imagePath("/images/user3.png")
+                        .build()
+        );
 
-        EwalletUser user1 = EwalletUser.builder()
-                .name("John Doe")
-                .ewallet(ovo)
-                .balance(new BigDecimal("100000"))
-                .phoneNumber("0821234567891")
-                .imagePath("johndoe.jpg")
-                .build();
-        ewalletUserRepository.save(user1);
+        // Ambil e-wallet "Ovo"
+        Optional<Ewallet> ewalletOpt = ewalletRepo.findByName("Ovo");
 
-        EwalletUser user2 = EwalletUser.builder()
-                .name("Jane Anang")
-                .ewallet(dana)
-                .balance(new BigDecimal("200000"))
-                .phoneNumber("081234567892")
-                .imagePath("janedoe.jpg")
-                .build();
-        ewalletUserRepository.save(user2);
+        if (ewalletOpt.isPresent()) {
+            Ewallet ewallet = ewalletOpt.get();
+            ewalletUsers.forEach(ewalletUser -> {
+                // Cek apakah EwalletUser dengan nama dan nomor telepon yang sama sudah ada
+                boolean exists = ewalletUserRepo.existsByNameAndPhoneNumber(ewalletUser.getName(), ewalletUser.getPhoneNumber());
+
+                if (exists) {
+                    log.info("EwalletUser with name {} and phone number {} already exists in the database.", ewalletUser.getName(), ewalletUser.getPhoneNumber());
+                } else {
+                    ewalletUser.setEwallet(ewallet);
+                    ewalletUserRepo.save(ewalletUser);
+                    log.info("EwalletUser {} has been added to the database with e-wallet {}", ewalletUser.getName(), ewallet.getName());
+                }
+            });
+        } else {
+            log.warn("E-wallet 'Ovo' not found in the database.");
+        }
     }
 }

@@ -1,6 +1,8 @@
 package org.synrgy.setara.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.synrgy.setara.user.model.User;
@@ -12,6 +14,7 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+  private final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
   private final UserRepository userRepo;
   private final PasswordEncoder passwordEncoder;
 
@@ -22,7 +25,7 @@ public class UserServiceImpl implements UserService {
             .email("andhika157@gmail.com")
             .signature("ADTP604T")
             .accountNumber("2891376451")
-            .name("Andhika Putra")
+            .name("Kendrick Lamar")
             .password(passwordEncoder.encode("andika12345"))
             .imagePath("kendrick.jpg")
             .nik("1272051706870001")
