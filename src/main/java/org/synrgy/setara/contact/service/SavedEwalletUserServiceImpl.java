@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class SavedEwalletUserServiceImpl implements SavedEwalletUserService {
     private final Logger log = LoggerFactory.getLogger(SavedEwalletUserServiceImpl.class);
     private final SavedEwalletUserRepository savedEwalletUserRepo;
+    private final SavedEwalletUserRepository sewuRepo;
     private final UserRepository userRepo;
     private final EwalletUserRepository ewalletUserRepo;
 

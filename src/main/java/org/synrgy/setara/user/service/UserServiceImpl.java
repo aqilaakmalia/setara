@@ -15,88 +15,26 @@ import java.math.BigDecimal;
 public class UserServiceImpl implements UserService {
 
   private final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
-
   private final UserRepository userRepo;
-
   private final PasswordEncoder passwordEncoder;
 
   @Override
   public void seedUser() {
-    // Data untuk pengguna pertama
-    createUserIfNotExists(
-            "kdot@tde.com",
-            "KDOT604T",
-            "1122334455",
-            "1272051706870001",
-            "+6281234567890",
-            "Kendrick Lamar",
-            "itsjustbigme",
-            "kendrick.jpg",
-            "Compton, CA",
-            BigDecimal.ZERO,
-            "170687"
-    );
-
-    // Data untuk pengguna kedua
-    createUserIfNotExists(
-            "jane.doe@example.com",
-            "JANE1234",
-            "2233445566",
-            "1272051706870002",
-            "+6289876543210",
-            "Jane Doe",
-            "jane123",
-            "jane.jpg",
-            "Los Angeles, CA",
-            BigDecimal.valueOf(5000),
-            "987654"
-    );
-
-    // Data untuk pengguna ketiga
-    createUserIfNotExists(
-            "john.smith@example.com",
-            "JOHN5678",
-            "3344556677",
-            "1272051706870003",
-            "+6281230987654",
-            "John Smith",
-            "john123",
-            "john.jpg",
-            "New York, NY",
-            BigDecimal.valueOf(10000),
-            "123456"
-    );
-  }
-
-  private void createUserIfNotExists(String email, String signature, String accountNumber, String nik,
-                                     String phoneNumber, String name, String password, String imagePath,
-                                     String address, BigDecimal balance, String mpin) {
-    boolean userExists = userRepo.existsByEmail(email) ||
-            userRepo.existsBySignature(signature) ||
-            userRepo.existsByAccountNumber(accountNumber) ||
-            userRepo.existsByNik(nik) ||
-            userRepo.existsByPhoneNumber(phoneNumber);
-
-    if (userExists) {
-      log.info("{} already exists in the system", email);
-      return;
-    }
 
     User user = User.builder()
-            .email(email)
-            .signature(signature)
-            .accountNumber(accountNumber)
-            .name(name)
-            .password(passwordEncoder.encode(password))
-            .imagePath(imagePath)
-            .nik(nik)
-            .phoneNumber(phoneNumber)
-            .address(address)
-            .balance(balance)
-            .mpin(mpin)
+            .email("andhika157@gmail.com")
+            .signature("ADTP604T")
+            .accountNumber("2891376451")
+            .name("Kendrick Lamar")
+            .password(passwordEncoder.encode("andika12345"))
+            .imagePath("kendrick.jpg")
+            .nik("1272051706870001")
+            .phoneNumber("081234567890")
+            .address("Bandung")
+            .balance(BigDecimal.valueOf(1000000))
+            .mpin(passwordEncoder.encode("170687"))
             .build();
 
     userRepo.save(user);
-    log.info("{} has been added to the system", email);
   }
 }
