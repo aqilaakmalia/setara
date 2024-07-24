@@ -11,7 +11,7 @@ public class UserProfileResponse {
   private String accountNumber;
   private String signature;
   private String avatar_path;
-  private String bankName; // Tambahkan field ini untuk nama bank
+  private String bankName;
 
   public static UserProfileResponse from(User user) {
     return UserProfileResponse.builder()
@@ -19,7 +19,7 @@ public class UserProfileResponse {
             .signature(user.getSignature())
             .accountNumber(user.getAccountNumber())
             .avatar_path(user.getImagePath())
-            .bankName(user.getBank().getName()) // Set nama bank
+            .bankName(user.getBank().getName())
             .build();
   }
 }

@@ -1,45 +1,36 @@
 package org.synrgy.setara.transaction.advice;
 
+import org.synrgy.setara.common.dto.BaseResponse;
 import org.synrgy.setara.transaction.exception.TransactionExceptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Map;
-
 @RestControllerAdvice
 public class TransactionAdvice {
 
     @ExceptionHandler(TransactionExceptions.InvalidMpinException.class)
-    public ResponseEntity<Map<String, Object>> handleInvalidMpinException(TransactionExceptions.InvalidMpinException ex) {
-        return ResponseEntity.badRequest().body(Map.of(
-                "message", ex.getMessage(),
-                "status", HttpStatus.BAD_REQUEST
-        ));
+    public ResponseEntity<BaseResponse<?>> handleInvalidMpinException(TransactionExceptions.InvalidMpinException ex) {
+        BaseResponse<?> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(TransactionExceptions.InsufficientBalanceException.class)
-    public ResponseEntity<Map<String, Object>> handleInsufficientBalanceException(TransactionExceptions.InsufficientBalanceException ex) {
-        return ResponseEntity.badRequest().body(Map.of(
-                "message", ex.getMessage(),
-                "status", HttpStatus.BAD_REQUEST
-        ));
+    public ResponseEntity<BaseResponse<?>> handleInsufficientBalanceException(TransactionExceptions.InsufficientBalanceException ex) {
+        BaseResponse<?> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(TransactionExceptions.DestinationEwalletUserNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleDestinationEwalletUserNotFoundException(TransactionExceptions.DestinationEwalletUserNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                "message", ex.getMessage(),
-                "status", HttpStatus.NOT_FOUND
-        ));
+    public ResponseEntity<BaseResponse<?>> handleDestinationEwalletUserNotFoundException(TransactionExceptions.DestinationEwalletUserNotFoundException ex) {
+        BaseResponse<?> response = BaseResponse.failure(HttpStatus.NOT_FOUND, ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                "message", "An unexpected error occurred",
-                "status", HttpStatus.INTERNAL_SERVER_ERROR
-        ));
+    public ResponseEntity<BaseResponse<?>> handleGeneralException(Exception ex) {
+        BaseResponse<?> response = BaseResponse.failure(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
