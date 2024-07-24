@@ -28,9 +28,9 @@ public class TransactionController {
     }
 
     @PostMapping("/bca-transfer")
-    public ResponseEntity<GenericResponse<TransferResponseDTO>> bcaTransfer(@RequestBody TransferRequestDTO request, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<BaseResponse<TransferResponseDTO>> bcaTransfer(@RequestBody TransferRequestDTO request, @RequestHeader("Authorization") String token) {
         String authToken = token.substring(7);
         TransferResponseDTO response = transactionService.transferWithinBCA(request, authToken);
-        return ResponseEntity.ok(GenericResponse.success(HttpStatus.OK, "Transfer successful", response));
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response,"Transfer successful"));
     }
 }

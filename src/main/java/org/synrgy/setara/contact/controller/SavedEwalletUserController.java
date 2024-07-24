@@ -72,14 +72,14 @@ public class SavedEwalletUserController {
     public ResponseEntity putFavoriteEwallet(@RequestBody PutFavoriteRequest request) {
         try {
             SavedEwalletUser savedEwallet = savedEwalletUserService.putFavoriteEwalletUser(request.getIdTersimpan(), request.isFavorite());
-            BaseResponse<SavedEwalletUser> response = BaseResponse.success(savedEwallet, "Success update is favorite ewallet");
+            BaseResponse<SavedEwalletUser> response = BaseResponse.success(HttpStatus.OK,savedEwallet, "Success update is favorite ewallet");
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(BaseResponse.failure(HttpStatus.NOT_FOUND.value(), ex.getMessage()));
+                    .body(BaseResponse.failure(HttpStatus.valueOf(HttpStatus.NOT_FOUND.value()), ex.getMessage()));
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(BaseResponse.failure(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage()));
+                    .body(BaseResponse.failure(HttpStatus.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), ex.getMessage()));
         }
     }
 

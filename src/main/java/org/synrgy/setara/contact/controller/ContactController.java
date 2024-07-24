@@ -30,8 +30,6 @@ public class ContactController {
 
   private final SavedAccountService saService;
 
-  private final SavedEwalletUserService sewuService;
-
   /* Saved Account section */
   @GetMapping(
     value = "/saved-accounts",
@@ -53,14 +51,14 @@ public class ContactController {
   public ResponseEntity<BaseResponse<SavedAccount>> putFavoriteAccount(@RequestBody PutFavoriteRequest request) {
     try {
       SavedAccount savedAccount = saService.putFavoriteAccount(request.getIdTersimpan(), request.isFavorite());
-      BaseResponse<SavedAccount> response = BaseResponse.success(savedAccount, "Success update is favorite account");
+      BaseResponse<SavedAccount> response = BaseResponse.success(HttpStatus.OK, savedAccount, "Success update is favorite account");
       return ResponseEntity.ok(response);
     } catch (EntityNotFoundException ex) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND)
-              .body(BaseResponse.failure(HttpStatus.NOT_FOUND.value(), ex.getMessage()));
+              .body(BaseResponse.failure(HttpStatus.valueOf(HttpStatus.NOT_FOUND.value()), ex.getMessage()));
     } catch (Exception ex) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-              .body(BaseResponse.failure(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage()));
+              .body(BaseResponse.failure(HttpStatus.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), ex.getMessage()));
     }
   }
 }
