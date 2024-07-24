@@ -3,14 +3,18 @@ package org.synrgy.setara.user.service;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.synrgy.setara.transaction.exception.TransactionExceptions;
+import org.synrgy.setara.user.dto.UserBalanceResponse;
 import org.synrgy.setara.user.model.User;
 import org.synrgy.setara.user.repository.UserRepository;
 import org.synrgy.setara.vendor.model.Bank;
 import org.synrgy.setara.vendor.repository.BankRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepo;
   private final PasswordEncoder passwordEncoder;
   private final BankRepository bankRepo;
+  private final UserRepository userRepository;
 
   @Override
   public void seedUser() {
@@ -105,5 +110,17 @@ public class UserServiceImpl implements UserService {
 
     userRepo.save(user);
     log.info("{} has been added to the system", email);
+  }
+
+  @Override
+  public UserBalanceResponse getBalance(String token) {
+    String signature = SecurityContextHolder.getContext().getAuthentication().getName();
+    User user = userRepository.findBySignature(signature)
+            .orElseThrow(() -> new TransactionExceptions.UserNotFoundException("User with signature " + signature + " not found"));
+
+    return UserBalanceResponse.builder()
+            .checkTime(LocalDateTime.now())
+            .balance(user.getBalance())
+            .build();
   }
 }
