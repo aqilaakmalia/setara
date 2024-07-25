@@ -14,7 +14,7 @@ import org.springframework.http.HttpStatus;
 @RequestMapping("/api/v1/transactions")
 @RequiredArgsConstructor
 @Slf4j
-public class TopUpController {
+public class TransactionController {
     private final TransactionService transactionService;
 
     @PostMapping("/topup")

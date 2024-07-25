@@ -14,7 +14,7 @@ import org.synrgy.setara.transaction.dto.TopUpResponse;
 import org.synrgy.setara.transaction.exception.TopUpExceptions;
 import org.synrgy.setara.transaction.model.Transaction;
 import org.synrgy.setara.transaction.model.TransactionType;
-import org.synrgy.setara.transaction.repository.TopUpRepository;
+import org.synrgy.setara.transaction.repository.TransactionRepository;
 import org.synrgy.setara.user.model.EwalletUser;
 import org.synrgy.setara.user.model.User;
 import org.synrgy.setara.user.repository.EwalletUserRepository;
@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
 @Slf4j
 public class TransactionServiceImpl implements TransactionService {
 
-    private final TopUpRepository topUpRepository;
+    private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final EwalletUserRepository ewalletUserRepository;
     private final SavedEwalletUserRepository savedEwalletUserRepository;
@@ -56,7 +56,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = createTransaction(request, user, destinationEwalletUser, totalAmount);
 
         updateBalances(user, destinationEwalletUser, request.getAmount(), totalAmount);
-        topUpRepository.save(transaction);
+        transactionRepository.save(transaction);
 
         if (request.isSavedAccount()) {
             saveEwalletUser(user, destinationEwalletUser);
