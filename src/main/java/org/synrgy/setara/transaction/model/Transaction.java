@@ -39,7 +39,7 @@ public class Transaction extends Auditable {
   )
   private User user;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(
     name = "bank_id",
     referencedColumnName = "id"
