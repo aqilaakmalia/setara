@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Setter
 @Data
 @Builder
-public class TransferRequestDTO {
+public class TransferRequest {
     private String destinationAccountNumber;
     private BigDecimal amount;
     private String mpin;

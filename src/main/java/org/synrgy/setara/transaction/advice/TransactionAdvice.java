@@ -5,39 +5,38 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.synrgy.setara.common.dto.BaseResponse;
-import org.synrgy.setara.transaction.exception.TopUpExceptions;
+import org.synrgy.setara.transaction.exception.TransactionExceptions;
 
 @RestControllerAdvice
-//@Order(1)
-public class TopUpAdvice {
+public class TransactionAdvice {
 
-    @ExceptionHandler(TopUpExceptions.UserNotFoundException.class)
-    public ResponseEntity<BaseResponse<?>> handleUserNotFoundException(TopUpExceptions.UserNotFoundException ex) {
+    @ExceptionHandler(TransactionExceptions.UserNotFoundException.class)
+    public ResponseEntity<BaseResponse<?>> handleUserNotFoundException(TransactionExceptions.UserNotFoundException ex) {
         return new ResponseEntity<>(BaseResponse.failure(HttpStatus.NOT_FOUND, ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(TopUpExceptions.DestinationEwalletUserNotFoundException.class)
-    public ResponseEntity<BaseResponse<?>> handleDestinationEwalletUserNotFoundException(TopUpExceptions.DestinationEwalletUserNotFoundException ex) {
+    @ExceptionHandler(TransactionExceptions.DestinationEwalletUserNotFoundException.class)
+    public ResponseEntity<BaseResponse<?>> handleDestinationEwalletUserNotFoundException(TransactionExceptions.DestinationEwalletUserNotFoundException ex) {
         return new ResponseEntity<>(BaseResponse.failure(HttpStatus.NOT_FOUND, ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(TopUpExceptions.InvalidMpinException.class)
-    public ResponseEntity<BaseResponse<?>> handleInvalidMpinException(TopUpExceptions.InvalidMpinException ex) {
+    @ExceptionHandler(TransactionExceptions.InvalidMpinException.class)
+    public ResponseEntity<BaseResponse<?>> handleInvalidMpinException(TransactionExceptions.InvalidMpinException ex) {
         return new ResponseEntity<>(BaseResponse.failure(HttpStatus.BAD_REQUEST, ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(TopUpExceptions.InvalidTopUpAmountException.class)
-    public ResponseEntity<BaseResponse<?>> handleInvalidTopUpAmountException(TopUpExceptions.InvalidTopUpAmountException ex) {
+    @ExceptionHandler(TransactionExceptions.InvalidTopUpAmountException.class)
+    public ResponseEntity<BaseResponse<?>> handleInvalidTopUpAmountException(TransactionExceptions.InvalidTopUpAmountException ex) {
         return new ResponseEntity<>(BaseResponse.failure(HttpStatus.BAD_REQUEST, ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(TopUpExceptions.InsufficientBalanceException.class)
-    public ResponseEntity<BaseResponse<?>> handleInsufficientBalanceException(TopUpExceptions.InsufficientBalanceException ex) {
+    @ExceptionHandler(TransactionExceptions.InsufficientBalanceException.class)
+    public ResponseEntity<BaseResponse<?>> handleInsufficientBalanceException(TransactionExceptions.InsufficientBalanceException ex) {
         return new ResponseEntity<>(BaseResponse.failure(HttpStatus.BAD_REQUEST, ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(TopUpExceptions.DestinationAccountNotFoundException.class)
-    public ResponseEntity<BaseResponse<?>> handleDestinationAccountNotFoundException(TopUpExceptions.DestinationAccountNotFoundException ex) {
+    @ExceptionHandler(TransactionExceptions.DestinationAccountNotFoundException.class)
+    public ResponseEntity<BaseResponse<?>> handleDestinationAccountNotFoundException(TransactionExceptions.DestinationAccountNotFoundException ex) {
         return new ResponseEntity<>(BaseResponse.failure(HttpStatus.NOT_FOUND, ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
