@@ -1,18 +1,19 @@
 package org.synrgy.setara.contact.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.synrgy.setara.common.dto.BaseResponse;
+import org.synrgy.setara.contact.dto.PutFavoriteRequest;
 import org.synrgy.setara.contact.dto.SavedAccountResponse;
+import org.synrgy.setara.contact.model.SavedAccount;
 import org.synrgy.setara.contact.service.SavedAccountService;
-import org.synrgy.setara.contact.service.SavedEwalletUserService;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,8 +27,6 @@ public class ContactController {
   private final Logger log = LoggerFactory.getLogger(ContactController.class);
 
   private final SavedAccountService saService;
-
-  private final SavedEwalletUserService sewuService;
 
   /* Saved Account section */
   @GetMapping(
@@ -46,4 +45,18 @@ public class ContactController {
   /* Saved Ewallet User section */
   // use prefix "/saved-ewallet-users"
 
+  @PutMapping("/favorite-account")
+  public ResponseEntity<BaseResponse<SavedAccount>> putFavoriteAccount(@RequestBody PutFavoriteRequest request) {
+    try {
+      SavedAccount savedAccount = saService.putFavoriteAccount(request.getIdTersimpan(), request.isFavorite());
+      BaseResponse<SavedAccount> response = BaseResponse.success(HttpStatus.OK, savedAccount, "Success update is favorite account");
+      return ResponseEntity.ok(response);
+    } catch (EntityNotFoundException ex) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+              .body(BaseResponse.failure(HttpStatus.valueOf(HttpStatus.NOT_FOUND.value()), ex.getMessage()));
+    } catch (Exception ex) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body(BaseResponse.failure(HttpStatus.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), ex.getMessage()));
+    }
+  }
 }

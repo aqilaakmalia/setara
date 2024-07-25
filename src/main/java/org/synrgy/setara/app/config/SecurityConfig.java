@@ -10,7 +10,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.synrgy.setara.security.filter.JwtAuthenticationFilter;
@@ -20,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -57,10 +57,9 @@ public class SecurityConfig {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
                             final Map<String, Object> body = new HashMap<>();
-                            body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-                            body.put("error", "Unauthorized");
-                            body.put("message", authException.getMessage());
-                            body.put("path", request.getServletPath());
+                            body.put("status", false); // Menyelaraskan dengan format BaseResponse
+                            body.put("message", "Full authentication is required to access this resource");
+                            body.put("code", HttpServletResponse.SC_UNAUTHORIZED);
 
                             final ObjectMapper mapper = new ObjectMapper();
                             mapper.writeValue(response.getOutputStream(), body);

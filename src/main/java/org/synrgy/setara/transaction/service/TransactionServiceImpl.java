@@ -21,6 +21,7 @@ import org.synrgy.setara.user.model.EwalletUser;
 import org.synrgy.setara.user.model.User;
 import org.synrgy.setara.user.repository.EwalletUserRepository;
 import org.synrgy.setara.user.repository.UserRepository;
+import org.synrgy.setara.vendor.model.Bank;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -36,6 +37,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final SavedEwalletUserRepository savedEwalletUserRepository;
     private final PasswordEncoder passwordEncoder;
     private static final BigDecimal ADMIN_FEE = BigDecimal.valueOf(1000);
+    private static final BigDecimal MINIMUM_TOP_UP_AMOUNT = BigDecimal.valueOf(10000);
 
     @Override
     public TransactionResponse topUp(TransactionRequest request, String token) {
@@ -44,6 +46,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(() -> new TransactionExceptions.UserNotFoundException("User with signature " + signature + " not found"));
 
         validateMpin(request.getMpin(), user);
+        validateTopUpAmount(request.getAmount());
 
         BigDecimal totalAmount = request.getAmount().add(ADMIN_FEE);
         checkSufficientBalance(user, totalAmount);
@@ -126,6 +129,12 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
+    private void validateTopUpAmount(BigDecimal amount) {
+        if (amount.compareTo(MINIMUM_TOP_UP_AMOUNT) < 0) {
+            throw new TransactionExceptions.InvalidTopUpAmountException("Top-up amount must be at least " + MINIMUM_TOP_UP_AMOUNT);
+        }
+    }
+
     private void checkSufficientBalance(User user, BigDecimal totalAmount) {
         if (user.getBalance().compareTo(totalAmount) < 0) {
             throw new TransactionExceptions.InsufficientBalanceException("Insufficient balance");
@@ -168,12 +177,15 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private TransactionResponse createTransactionResponse(Transaction transaction, EwalletUser destinationEwalletUser) {
+        Bank bank = transaction.getUser().getBank();
+        String bankName = bank != null ? bank.getName() : "Unknown";
+
         return TransactionResponse.builder()
                 .user(TransactionResponse.UserDto.builder()
                         .accountNumber(transaction.getUser().getAccountNumber())
                         .name(transaction.getUser().getName())
                         .imagePath(transaction.getUser().getImagePath())
-                        .bank("TAHAPAN BCA")
+                        .bankName(bankName)
                         .build())
                 .userEwallet(TransactionResponse.UserEwalletDto.builder()
                         .name(destinationEwalletUser.getName())
