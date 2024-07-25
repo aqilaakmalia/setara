@@ -17,6 +17,7 @@ import org.synrgy.setara.transaction.exception.TransactionExceptions;
 import org.synrgy.setara.transaction.model.Transaction;
 import org.synrgy.setara.transaction.model.TransactionType;
 import org.synrgy.setara.transaction.repository.TransactionRepository;
+import org.synrgy.setara.transaction.service.TransactionService;
 import org.synrgy.setara.user.model.EwalletUser;
 import org.synrgy.setara.user.model.User;
 import org.synrgy.setara.user.repository.EwalletUserRepository;
@@ -40,6 +41,7 @@ public class TransactionServiceImpl implements TransactionService {
     private static final BigDecimal MINIMUM_TOP_UP_AMOUNT = BigDecimal.valueOf(10000);
 
     @Override
+    @Transactional
     public TransactionResponse topUp(TransactionRequest request, String token) {
         String signature = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findBySignature(signature)
@@ -74,22 +76,21 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(() -> new TransactionExceptions.UserNotFoundException("User with signature " + signature + " not found"));
 
         User destinationUser = userRepository.findByAccountNumber(request.getDestinationAccountNumber())
-                        .orElseThrow(() -> new TransactionExceptions.DestinationAccountNotFoundException("Destination account not found " + request.getDestinationAccountNumber()));
+                .orElseThrow(() -> new TransactionExceptions.DestinationAccountNotFoundException("Destination account not found " + request.getDestinationAccountNumber()));
 
         validateMpin(request.getMpin(), sourceUser);
 
-        BigDecimal totalAmount = request.getAmount().add(BigDecimal.valueOf(0));
+        BigDecimal totalAmount = request.getAmount().add(BigDecimal.ZERO);
         checkSufficientBalance(sourceUser, totalAmount);
 
         String referenceNumber = TransactionUtils.generateReferenceNumber();
         String uniqueCode = TransactionUtils.generateUniqueCode(referenceNumber);
         Transaction transaction = Transaction.builder()
                 .user(sourceUser)
-//                .bank("TAHAPAN BCA")
                 .type(TransactionType.TRANSFER)
                 .destinationAccountNumber(request.getDestinationAccountNumber())
                 .amount(request.getAmount())
-                .adminFee(BigDecimal.valueOf(0))
+                .adminFee(BigDecimal.ZERO)
                 .totalamount(totalAmount)
                 .uniqueCode(uniqueCode)
                 .referenceNumber(referenceNumber)
@@ -117,7 +118,7 @@ public class TransactionServiceImpl implements TransactionService {
                         .imagePath(destinationUser.getImagePath())
                         .build())
                 .amount(transaction.getAmount())
-                .adminFee(BigDecimal.valueOf(0))
+                .adminFee(BigDecimal.ZERO)
                 .totalAmount(totalAmount)
                 .note(request.getNote())
                 .build();
@@ -168,12 +169,14 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private void saveEwalletUser(User owner, EwalletUser ewalletUser) {
-        SavedEwalletUser savedEwalletUser = SavedEwalletUser.builder()
-                .owner(owner)
-                .ewalletUser(ewalletUser)
-                .favorite(false)
-                .build();
-        savedEwalletUserRepository.save(savedEwalletUser);
+        if (!savedEwalletUserRepository.existsByOwnerAndEwalletUser(owner, ewalletUser)) {
+            SavedEwalletUser savedEwalletUser = SavedEwalletUser.builder()
+                    .owner(owner)
+                    .ewalletUser(ewalletUser)
+                    .favorite(false)
+                    .build();
+            savedEwalletUserRepository.save(savedEwalletUser);
+        }
     }
 
     private TransactionResponse createTransactionResponse(Transaction transaction, EwalletUser destinationEwalletUser) {
