@@ -14,10 +14,8 @@ import org.synrgy.setara.contact.dto.PutFavoriteRequest;
 import org.synrgy.setara.contact.dto.SavedAccountResponse;
 import org.synrgy.setara.contact.model.SavedAccount;
 import org.synrgy.setara.contact.service.SavedAccountService;
-import org.synrgy.setara.contact.service.SavedEwalletUserService;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Validated
