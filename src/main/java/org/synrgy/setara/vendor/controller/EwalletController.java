@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.synrgy.setara.common.dto.BaseResponse;
-import org.synrgy.setara.vendor.model.Ewallet;
+import org.synrgy.setara.vendor.dto.EwalletResponseDto;
 import org.synrgy.setara.vendor.service.EwalletService;
 
 import java.util.List;
@@ -25,9 +25,9 @@ public class EwalletController {
 
     @GetMapping("/ewallets")
     @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity<BaseResponse<List<Ewallet>>> getAllEwallets() {
-        List<Ewallet> ewallets = ewalletService.getAllEwallets();
-        BaseResponse<List<Ewallet>> response = BaseResponse.success(HttpStatus.OK, ewallets, "Success Get All E-Wallet");
+    public ResponseEntity<BaseResponse<List<EwalletResponseDto>>> getAllEwallets() {
+        List<EwalletResponseDto> ewallets = ewalletService.getAllEwallets();
+        BaseResponse<List<EwalletResponseDto>> response = BaseResponse.success(HttpStatus.OK, ewallets, "Success Get All E-Wallet");
         return ResponseEntity.ok(response);
     }
 }
