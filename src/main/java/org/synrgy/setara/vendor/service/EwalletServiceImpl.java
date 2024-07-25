@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.synrgy.setara.vendor.dto.EwalletResponse;
 import org.synrgy.setara.vendor.model.Ewallet;
 import org.synrgy.setara.vendor.repository.EwalletRepository;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +37,13 @@ public class EwalletServiceImpl implements EwalletService {
     }
 
     @Override
-    public List<Ewallet> getAllEwallets() {
-        return ewalletRepo.findAll();
+    public List<EwalletResponse> getAllEwallets() {
+        List<Ewallet> ewallets = ewalletRepo.findAllEwallet();
+        return ewallets.stream()
+                .map(ewallet -> new EwalletResponse(
+                        ewallet.getId().toString(),
+                        ewallet.getName(),
+                        ewallet.getImagePath()))
+                .collect(Collectors.toList());
     }
 }
