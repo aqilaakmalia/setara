@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.synrgy.setara.common.dto.BaseResponse;
-import org.synrgy.setara.transaction.dto.TransferRequestDTO;
-import org.synrgy.setara.transaction.dto.TransactionRequest;
-import org.synrgy.setara.transaction.dto.TransactionResponse;
-import org.synrgy.setara.transaction.dto.TransferResponseDTO;
+import org.synrgy.setara.transaction.dto.*;
 import org.synrgy.setara.transaction.service.TransactionService;
 import org.springframework.http.HttpStatus;
 
@@ -32,5 +29,13 @@ public class TransactionController {
         String authToken = token.substring(7);
         TransferResponseDTO response = transactionService.transferWithinBCA(request, authToken);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response,"Transfer successful"));
+    }
+
+    @GetMapping("/getMonthlyReport")
+    public ResponseEntity<BaseResponse<GetMonthlyReportResponse>> getMonthlyReport(@RequestHeader("Authorization") String token, @RequestParam(name = "month") int month, @RequestParam(name = "year") int year) {
+        String authToken = token.substring(7);
+        GetMonthlyReportResponse getMonthlyReportResponse = transactionService.getMonthlyReport(authToken, month, year);
+        BaseResponse<GetMonthlyReportResponse> response = BaseResponse.success(HttpStatus.OK, getMonthlyReportResponse, "Success Get Monthly Report");
+        return ResponseEntity.ok(response);
     }
 }

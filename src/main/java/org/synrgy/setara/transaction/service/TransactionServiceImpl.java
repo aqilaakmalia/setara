@@ -9,10 +9,7 @@ import org.springframework.stereotype.Service;
 import org.synrgy.setara.common.utils.TransactionUtils;
 import org.synrgy.setara.contact.model.SavedEwalletUser;
 import org.synrgy.setara.contact.repository.SavedEwalletUserRepository;
-import org.synrgy.setara.transaction.dto.TransferRequestDTO;
-import org.synrgy.setara.transaction.dto.TransactionRequest;
-import org.synrgy.setara.transaction.dto.TransactionResponse;
-import org.synrgy.setara.transaction.dto.TransferResponseDTO;
+import org.synrgy.setara.transaction.dto.*;
 import org.synrgy.setara.transaction.exception.TransactionExceptions;
 import org.synrgy.setara.transaction.model.Transaction;
 import org.synrgy.setara.transaction.model.TransactionType;
@@ -25,6 +22,7 @@ import org.synrgy.setara.vendor.model.Bank;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -198,6 +196,44 @@ public class TransactionServiceImpl implements TransactionService {
                 .amount(transaction.getAmount())
                 .totalAmount(transaction.getTotalamount())
                 .adminFee(transaction.getAdminFee())
+                .build();
+    }
+
+    @Override
+    public GetMonthlyReportResponse getMonthlyReport(String token, int month, int year) {
+        String signature = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findBySignature(signature)
+                .orElseThrow(() -> new TransactionExceptions.UserNotFoundException("User with signature " + signature + " not found"));
+
+        BigDecimal income = BigDecimal.valueOf(0);
+        BigDecimal expense = BigDecimal.valueOf(0);
+
+        List<Transaction> transactions = transactionRepository.findByUserAndMonthAndYear(user.getId(), month, year);
+        for (Transaction transaction : transactions) {
+            switch (transaction.getType()) {
+                case TRANSFER, TOP_UP:
+                    expense = expense.add(transaction.getTotalamount());
+                    break;
+                case DEPOSIT:
+                    income = income.add(transaction.getTotalamount());
+                    break;
+            }
+        }
+
+        List<Transaction> transfersThroughPhoneNumber = transactionRepository.findTransfersByPhoneNumberAndMonthAndYear(user.getPhoneNumber(), month, year);
+        for (Transaction transfer : transfersThroughPhoneNumber) {
+            income = income.add(transfer.getAmount());
+        }
+
+        List<Transaction> transfersThroughAccountNumber = transactionRepository.findTransfersByAccountNumberAndMonthAndYear(user.getAccountNumber(), month, year);
+        for (Transaction transfer : transfersThroughAccountNumber) {
+            income = income.add(transfer.getAmount());
+        }
+
+        return GetMonthlyReportResponse.builder()
+                .income(income)
+                .expense(expense)
+                .total(income.subtract(expense))
                 .build();
     }
 }
