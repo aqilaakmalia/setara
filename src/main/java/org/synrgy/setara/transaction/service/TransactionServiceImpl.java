@@ -9,15 +9,12 @@ import org.springframework.stereotype.Service;
 import org.synrgy.setara.common.utils.TransactionUtils;
 import org.synrgy.setara.contact.model.SavedEwalletUser;
 import org.synrgy.setara.contact.repository.SavedEwalletUserRepository;
-import org.synrgy.setara.transaction.dto.TransferRequestDTO;
-import org.synrgy.setara.transaction.dto.TransactionRequest;
-import org.synrgy.setara.transaction.dto.TransactionResponse;
-import org.synrgy.setara.transaction.dto.TransferResponseDTO;
-import org.synrgy.setara.transaction.exception.TransactionExceptions;
+import org.synrgy.setara.transaction.dto.TopUpRequest;
+import org.synrgy.setara.transaction.dto.TopUpResponse;
+import org.synrgy.setara.transaction.exception.TopUpExceptions;
 import org.synrgy.setara.transaction.model.Transaction;
 import org.synrgy.setara.transaction.model.TransactionType;
-import org.synrgy.setara.transaction.repository.TransactionRepository;
-import org.synrgy.setara.transaction.service.TransactionService;
+import org.synrgy.setara.transaction.repository.TopUpRepository;
 import org.synrgy.setara.user.model.EwalletUser;
 import org.synrgy.setara.user.model.User;
 import org.synrgy.setara.user.repository.EwalletUserRepository;
@@ -32,7 +29,7 @@ import java.time.LocalDateTime;
 @Slf4j
 public class TransactionServiceImpl implements TransactionService {
 
-    private final TransactionRepository transactionRepository;
+    private final TopUpRepository topUpRepository;
     private final UserRepository userRepository;
     private final EwalletUserRepository ewalletUserRepository;
     private final SavedEwalletUserRepository savedEwalletUserRepository;
@@ -42,10 +39,10 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
-    public TransactionResponse topUp(TransactionRequest request, String token) {
+    public TopUpResponse topUp(TopUpRequest request, String token) {
         String signature = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findBySignature(signature)
-                .orElseThrow(() -> new TransactionExceptions.UserNotFoundException("User with signature " + signature + " not found"));
+                .orElseThrow(() -> new TopUpExceptions.UserNotFoundException("User with signature " + signature + " not found"));
 
         validateMpin(request.getMpin(), user);
         validateTopUpAmount(request.getAmount());
@@ -54,12 +51,12 @@ public class TransactionServiceImpl implements TransactionService {
         checkSufficientBalance(user, totalAmount);
 
         EwalletUser destinationEwalletUser = ewalletUserRepository.findByPhoneNumber(request.getDestinationPhoneNumber())
-                .orElseThrow(() -> new TransactionExceptions.DestinationEwalletUserNotFoundException("Destination e-wallet user not found for phone number " + request.getDestinationPhoneNumber()));
+                .orElseThrow(() -> new TopUpExceptions.DestinationEwalletUserNotFoundException("Destination e-wallet user not found for phone number " + request.getDestinationPhoneNumber()));
 
         Transaction transaction = createTransaction(request, user, destinationEwalletUser, totalAmount);
 
         updateBalances(user, destinationEwalletUser, request.getAmount(), totalAmount);
-        transactionRepository.save(transaction);
+        topUpRepository.save(transaction);
 
         if (request.isSavedAccount()) {
             saveEwalletUser(user, destinationEwalletUser);
@@ -68,81 +65,25 @@ public class TransactionServiceImpl implements TransactionService {
         return createTransactionResponse(transaction, destinationEwalletUser);
     }
 
-    @Override
-    @Transactional
-    public TransferResponseDTO transferWithinBCA(TransferRequestDTO request, String authToken) {
-        String signature = SecurityContextHolder.getContext().getAuthentication().getName();
-        User sourceUser = userRepository.findBySignature(signature)
-                .orElseThrow(() -> new TransactionExceptions.UserNotFoundException("User with signature " + signature + " not found"));
-
-        User destinationUser = userRepository.findByAccountNumber(request.getDestinationAccountNumber())
-                .orElseThrow(() -> new TransactionExceptions.DestinationAccountNotFoundException("Destination account not found " + request.getDestinationAccountNumber()));
-
-        validateMpin(request.getMpin(), sourceUser);
-
-        BigDecimal totalAmount = request.getAmount().add(BigDecimal.ZERO);
-        checkSufficientBalance(sourceUser, totalAmount);
-
-        String referenceNumber = TransactionUtils.generateReferenceNumber();
-        String uniqueCode = TransactionUtils.generateUniqueCode(referenceNumber);
-        Transaction transaction = Transaction.builder()
-                .user(sourceUser)
-                .type(TransactionType.TRANSFER)
-                .destinationAccountNumber(request.getDestinationAccountNumber())
-                .amount(request.getAmount())
-                .adminFee(BigDecimal.ZERO)
-                .totalamount(totalAmount)
-                .uniqueCode(uniqueCode)
-                .referenceNumber(referenceNumber)
-                .note(request.getNote())
-                .time(LocalDateTime.now())
-                .build();
-        transactionRepository.save(transaction);
-
-        sourceUser.setBalance(sourceUser.getBalance().subtract(totalAmount));
-        destinationUser.setBalance(destinationUser.getBalance().add(request.getAmount()));
-        userRepository.save(sourceUser);
-        userRepository.save(destinationUser);
-
-        return TransferResponseDTO.builder()
-                .sourceUser(TransferResponseDTO.UserDTO.builder()
-                        .name(sourceUser.getSignature())
-                        .bank("TAHAPAN BCA")
-                        .accountNumber(sourceUser.getAccountNumber())
-                        .imagePath(sourceUser.getImagePath())
-                        .build())
-                .destinationUser(TransferResponseDTO.UserDTO.builder()
-                        .name(destinationUser.getSignature())
-                        .bank("TAHAPAN BCA")
-                        .accountNumber(destinationUser.getAccountNumber())
-                        .imagePath(destinationUser.getImagePath())
-                        .build())
-                .amount(transaction.getAmount())
-                .adminFee(BigDecimal.ZERO)
-                .totalAmount(totalAmount)
-                .note(request.getNote())
-                .build();
-    }
-
     private void validateMpin(String mpin, User user) {
         if (!passwordEncoder.matches(mpin, user.getMpin())) {
-            throw new TransactionExceptions.InvalidMpinException("Invalid MPIN");
+            throw new TopUpExceptions.InvalidMpinException("Invalid MPIN");
         }
     }
 
     private void validateTopUpAmount(BigDecimal amount) {
         if (amount.compareTo(MINIMUM_TOP_UP_AMOUNT) < 0) {
-            throw new TransactionExceptions.InvalidTopUpAmountException("Top-up amount must be at least " + MINIMUM_TOP_UP_AMOUNT);
+            throw new TopUpExceptions.InvalidTopUpAmountException("Top-up amount must be at least " + MINIMUM_TOP_UP_AMOUNT);
         }
     }
 
     private void checkSufficientBalance(User user, BigDecimal totalAmount) {
         if (user.getBalance().compareTo(totalAmount) < 0) {
-            throw new TransactionExceptions.InsufficientBalanceException("Insufficient balance");
+            throw new TopUpExceptions.InsufficientBalanceException("Insufficient balance");
         }
     }
 
-    private Transaction createTransaction(TransactionRequest request, User user, EwalletUser destinationEwalletUser, BigDecimal totalAmount) {
+    private Transaction createTransaction(TopUpRequest request, User user, EwalletUser destinationEwalletUser, BigDecimal totalAmount) {
         String referenceNumber = TransactionUtils.generateReferenceNumber();
         String uniqueCode = TransactionUtils.generateUniqueCode(referenceNumber);
 
@@ -179,22 +120,22 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
-    private TransactionResponse createTransactionResponse(Transaction transaction, EwalletUser destinationEwalletUser) {
+    private TopUpResponse createTransactionResponse(Transaction transaction, EwalletUser destinationEwalletUser) {
         Bank bank = transaction.getUser().getBank();
         String bankName = bank != null ? bank.getName() : "Unknown";
 
-        return TransactionResponse.builder()
-                .user(TransactionResponse.UserDto.builder()
+        return TopUpResponse.builder()
+                .user(TopUpResponse.UserDto.builder()
                         .accountNumber(transaction.getUser().getAccountNumber())
                         .name(transaction.getUser().getName())
                         .imagePath(transaction.getUser().getImagePath())
                         .bankName(bankName)
                         .build())
-                .userEwallet(TransactionResponse.UserEwalletDto.builder()
+                .userEwallet(TopUpResponse.UserEwalletDto.builder()
                         .name(destinationEwalletUser.getName())
                         .phoneNumber(destinationEwalletUser.getPhoneNumber())
                         .imagePath(destinationEwalletUser.getImagePath())
-                        .ewallet(TransactionResponse.EwalletDto.builder()
+                        .ewallet(TopUpResponse.EwalletDto.builder()
                                 .name(transaction.getEwallet().getName())
                                 .build())
                         .build())

@@ -1,12 +1,8 @@
 package org.synrgy.setara.transaction.service;
 
-import org.synrgy.setara.transaction.dto.TransferRequestDTO;
-import org.synrgy.setara.transaction.dto.TransactionRequest;
-import org.synrgy.setara.transaction.dto.TransactionResponse;
-import org.synrgy.setara.transaction.dto.TransferResponseDTO;
+import org.synrgy.setara.transaction.dto.TopUpRequest;
+import org.synrgy.setara.transaction.dto.TopUpResponse;
 
 public interface TransactionService {
-    TransactionResponse topUp(TransactionRequest request, String token);
-
-    TransferResponseDTO transferWithinBCA(TransferRequestDTO request, String authToken);
+    TopUpResponse topUp(TopUpRequest request, String token);
 }

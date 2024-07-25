@@ -10,7 +10,7 @@ import org.synrgy.setara.transaction.model.Transaction;
 import java.util.UUID;
 
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
+public interface TopUpRepository extends JpaRepository<Transaction, UUID> {
 
   @Modifying
   @Query("UPDATE Transaction t SET t.deletedAt = CURRENT_TIMESTAMP WHERE t.id = :id")

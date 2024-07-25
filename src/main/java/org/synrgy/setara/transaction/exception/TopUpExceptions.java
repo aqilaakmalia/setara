@@ -1,6 +1,6 @@
 package org.synrgy.setara.transaction.exception;
 
-public class TransactionExceptions {
+public class TopUpExceptions {
 
     public static class UserNotFoundException extends RuntimeException {
         public UserNotFoundException(String message) {
