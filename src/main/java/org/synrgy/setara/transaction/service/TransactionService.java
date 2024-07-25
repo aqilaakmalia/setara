@@ -1,8 +1,8 @@
 package org.synrgy.setara.transaction.service;
 
-import org.synrgy.setara.transaction.dto.TransactionRequest;
-import org.synrgy.setara.transaction.dto.TransactionResponse;
+import org.synrgy.setara.transaction.dto.TopUpRequest;
+import org.synrgy.setara.transaction.dto.TopUpResponse;
 
 public interface TransactionService {
-    TransactionResponse topUp(TransactionRequest request, String token);
+    TopUpResponse topUp(TopUpRequest request, String token);
 }

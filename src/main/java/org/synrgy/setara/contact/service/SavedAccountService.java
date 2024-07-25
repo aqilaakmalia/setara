@@ -1,5 +1,6 @@
 package org.synrgy.setara.contact.service;
 
+import org.synrgy.setara.contact.dto.FavoriteResponse;
 import org.synrgy.setara.contact.dto.SavedAccountResponse;
 import org.synrgy.setara.contact.model.SavedAccount;
 
@@ -11,5 +12,5 @@ public interface SavedAccountService {
 
   List<SavedAccountResponse> getSavedAccounts(UUID ownerId, boolean favOnly);
 
-  SavedAccount putFavoriteAccount(UUID idTersimpan, boolean isFavorite);
+  FavoriteResponse putFavoriteAccount(UUID idTersimpan, boolean isFavorite);
 }
