@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.synrgy.setara.common.utils.TransactionUtils;
+import org.synrgy.setara.transaction.utils.TransactionUtils;
 import org.synrgy.setara.contact.model.SavedAccount;
 import org.synrgy.setara.contact.model.SavedEwalletUser;
 import org.synrgy.setara.contact.repository.SavedAccountRepository;
@@ -63,7 +63,7 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.save(transaction);
 
         if (request.isSavedAccount()) {
-            saveEwalletUser(user, destinationEwalletUser);
+            saveEwalletUser(user, destinationEwalletUser); // Save the ewallet user data
         }
 
         return createTransactionResponse(transaction, destinationEwalletUser);
@@ -89,18 +89,20 @@ public class TransactionServiceImpl implements TransactionService {
 
         validateMpin(request.getMpin(), sourceUser);
 
-        BigDecimal totalAmount = request.getAmount().add(BigDecimal.valueOf(0)); // No admin fee for this transfer type
+        BigDecimal totalAmount = request.getAmount(); // No admin fee for this transfer type
+
         checkSufficientBalance(sourceUser, totalAmount);
 
-        String referenceNumber = TransactionUtils.generateReferenceNumber();
+        String referenceNumber = TransactionUtils.generateReferenceNumber("TRF");
         String uniqueCode = TransactionUtils.generateUniqueCode(referenceNumber);
+
         Transaction transaction = Transaction.builder()
                 .user(sourceUser)
                 .bank(sourceUser.getBank())
                 .type(TransactionType.TRANSFER)
                 .destinationAccountNumber(request.getDestinationAccountNumber())
                 .amount(request.getAmount())
-                .adminFee(BigDecimal.valueOf(0))
+                .adminFee(BigDecimal.ZERO)
                 .totalamount(totalAmount)
                 .uniqueCode(uniqueCode)
                 .referenceNumber(referenceNumber)
@@ -108,6 +110,25 @@ public class TransactionServiceImpl implements TransactionService {
                 .time(LocalDateTime.now())
                 .build();
         transactionRepository.save(transaction);
+
+        // Create deposit transaction for destination user
+        String depositReferenceNumber = TransactionUtils.generateReferenceNumber("DPT");
+        String depositUniqueCode = TransactionUtils.generateUniqueCode(depositReferenceNumber);
+
+        Transaction depositTransaction = Transaction.builder()
+                .user(destinationUser)
+                .bank(sourceUser.getBank())  // Assuming the bank of the transaction is the bank of the source user
+                .type(TransactionType.DEPOSIT)
+                .destinationAccountNumber(null)
+                .amount(request.getAmount())
+                .adminFee(BigDecimal.ZERO)
+                .totalamount(request.getAmount())
+                .uniqueCode(depositUniqueCode)
+                .referenceNumber(depositReferenceNumber)
+                .note(request.getNote())
+                .time(LocalDateTime.now())  // Use the same time as the transfer transaction
+                .build();
+        transactionRepository.save(depositTransaction);
 
         sourceUser.setBalance(sourceUser.getBalance().subtract(totalAmount));
         destinationUser.setBalance(destinationUser.getBalance().add(request.getAmount()));
@@ -120,7 +141,7 @@ public class TransactionServiceImpl implements TransactionService {
                     .bank(destinationUser.getBank())
                     .name(destinationUser.getName())
                     .accountNumber(destinationUser.getAccountNumber())
-                    .imagePath(destinationUser.getImagePath())
+                    .imagePath(sourceUser.getImagePath())
                     .favorite(false)
                     .build();
             savedAccountRepository.save(savedAccount);
@@ -139,8 +160,8 @@ public class TransactionServiceImpl implements TransactionService {
                         .accountNumber(destinationUser.getAccountNumber())
                         .imagePath(destinationUser.getImagePath())
                         .build())
-                .amount(transaction.getAmount())
-                .adminFee(BigDecimal.valueOf(0))
+                .amount(request.getAmount())
+                .adminFee(BigDecimal.ZERO)
                 .totalAmount(totalAmount)
                 .note(request.getNote())
                 .build();
@@ -165,7 +186,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private Transaction createTransaction(TopUpRequest request, User user, EwalletUser destinationEwalletUser, BigDecimal totalAmount) {
-        String referenceNumber = TransactionUtils.generateReferenceNumber();
+        String referenceNumber = TransactionUtils.generateReferenceNumber("TOP");
         String uniqueCode = TransactionUtils.generateUniqueCode(referenceNumber);
 
         return Transaction.builder()
@@ -216,13 +237,10 @@ public class TransactionServiceImpl implements TransactionService {
                         .name(destinationEwalletUser.getName())
                         .phoneNumber(destinationEwalletUser.getPhoneNumber())
                         .imagePath(destinationEwalletUser.getImagePath())
-                        .ewallet(TopUpResponse.EwalletDto.builder()
-                                .name(transaction.getEwallet().getName())
-                                .build())
                         .build())
                 .amount(transaction.getAmount())
-                .totalAmount(transaction.getTotalamount())
                 .adminFee(transaction.getAdminFee())
+                .totalAmount(transaction.getTotalamount())
                 .build();
     }
 
@@ -264,3 +282,4 @@ public class TransactionServiceImpl implements TransactionService {
                 .build();
     }
 }
+

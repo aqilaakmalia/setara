@@ -48,6 +48,12 @@ public interface SavedEwalletUserRepository extends JpaRepository<SavedEwalletUs
 
   List<SavedEwalletUser> findByOwnerIdAndFavorite(UUID ownerId, boolean favorite);
 
+  @Query("SELECT COUNT(s) FROM SavedEwalletUser s WHERE s.owner.id = :ownerId AND s.favorite = true")
+  Long countFavoriteByOwner(@Param("ownerId") UUID ownerId);
+
+  @Query("SELECT COUNT(s) FROM SavedEwalletUser s WHERE s.owner.id = :ownerId AND s.favorite = false")
+  Long countNotFavoriteByOwner(@Param("ownerId") UUID ownerId);
+
   @Modifying
   @Query("UPDATE SavedEwalletUser sa SET sa.favorite = :isFavorite WHERE sa.id = :id")
   void putFavorite(@Param("id") UUID id, @Param("isFavorite") boolean isFavorite);
