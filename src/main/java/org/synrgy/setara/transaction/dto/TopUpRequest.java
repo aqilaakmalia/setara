@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Setter
 @Data
 @Builder
-public class TransactionRequest {
+public class TopUpRequest {
     private String destinationPhoneNumber;
     private BigDecimal amount;
     private String mpin;
