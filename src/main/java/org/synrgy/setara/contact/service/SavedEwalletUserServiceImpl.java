@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.synrgy.setara.contact.dto.FavoriteResponse;
-import org.synrgy.setara.contact.dto.SavedEwalletSummaryResponse;
+import org.synrgy.setara.contact.dto.SavedEwalletAndAccountFinalResponse;
 import org.synrgy.setara.contact.dto.SavedEwalletUserResponse;
 import org.synrgy.setara.contact.exception.SavedEwalletExceptions;
 import org.synrgy.setara.contact.exception.SavedEwalletExceptions.*;
@@ -63,7 +63,8 @@ public class SavedEwalletUserServiceImpl implements SavedEwalletUserService {
     }
 
     @Override
-    public SavedEwalletSummaryResponse getSavedEwalletUsersForUser(String authToken) {
+    @Transactional
+    public SavedEwalletAndAccountFinalResponse<SavedEwalletUserResponse> getSavedEwalletUsers(String authToken) {
         String signature = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User user = userRepo.findBySignature(signature)
@@ -73,36 +74,23 @@ public class SavedEwalletUserServiceImpl implements SavedEwalletUserService {
 
         List<SavedEwalletUserResponse> favoriteEwalletUsers = savedEwalletUsers.stream()
                 .filter(SavedEwalletUser::isFavorite)
-                .map(savedUser -> new SavedEwalletUserResponse(
-                        savedUser.getId(),
-                        savedUser.getOwner().getId(),
-                        savedUser.getEwalletUser().getId(),
-                        savedUser.isFavorite(),
-                        savedUser.getEwalletUser().getName(),
-                        savedUser.getEwalletUser().getImagePath(),
-                        savedUser.getEwalletUser().getPhoneNumber(),
-                        savedUser.getEwalletUser().getEwallet().getName()
-                ))
+                .map(SavedEwalletUserResponse::from)
                 .toList();
 
         List<SavedEwalletUserResponse> nonFavoriteEwalletUsers = savedEwalletUsers.stream()
                 .filter(savedUser -> !savedUser.isFavorite())
-                .map(savedUser -> new SavedEwalletUserResponse(
-                        savedUser.getId(),
-                        savedUser.getOwner().getId(),
-                        savedUser.getEwalletUser().getId(),
-                        savedUser.isFavorite(),
-                        savedUser.getEwalletUser().getName(),
-                        savedUser.getEwalletUser().getImagePath(),
-                        savedUser.getEwalletUser().getPhoneNumber(),
-                        savedUser.getEwalletUser().getEwallet().getName()
-                ))
+                .map(SavedEwalletUserResponse::from)
                 .toList();
 
         long favoriteCount = favoriteEwalletUsers.size();
         long nonFavoriteCount = nonFavoriteEwalletUsers.size();
 
-        return new SavedEwalletSummaryResponse(favoriteCount, nonFavoriteCount, favoriteEwalletUsers, nonFavoriteEwalletUsers);
+        return new SavedEwalletAndAccountFinalResponse<>(
+                favoriteCount,
+                nonFavoriteCount,
+                favoriteEwalletUsers,
+                nonFavoriteEwalletUsers
+        );
     }
 
     @Override
