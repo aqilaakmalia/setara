@@ -71,6 +71,9 @@ public class SavedEwalletUserServiceImpl implements SavedEwalletUserService {
             savedEwalletUsers = savedEwalletUserRepo.findByOwnerId(user.getId());
         }
 
+        long favoriteCount = savedEwalletUsers.stream().filter(SavedEwalletUser::isFavorite).count();
+        long notFavoriteCount = savedEwalletUsers.size() - favoriteCount;
+
         return savedEwalletUsers.stream()
                 .map(saved -> new SavedEwalletUserResponse(
                         saved.getId(),
