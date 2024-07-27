@@ -7,7 +7,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.synrgy.setara.vendor.model.Ewallet;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
