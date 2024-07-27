@@ -287,7 +287,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
-    public MerchantTransactionResponse merchantTransaction(MerchantTransactionRequest request, String token) {
+    public MerchantTransactionResponse merchantTransaction(MerchantTransactionRequest request) {
         try {
             String signature = SecurityContextHolder.getContext().getAuthentication().getName();
             User sourceUser = userRepository.findBySignature(signature)

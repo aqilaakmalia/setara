@@ -9,5 +9,5 @@ public interface TransactionService {
 
     MonthlyReportResponse getMonthlyReport(int month, int year);
 
-    MerchantTransactionResponse merchantTransaction(MerchantTransactionRequest request, String authToken);
+    MerchantTransactionResponse merchantTransaction(MerchantTransactionRequest request);
 }
