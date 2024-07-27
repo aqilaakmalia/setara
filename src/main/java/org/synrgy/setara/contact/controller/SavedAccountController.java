@@ -12,6 +12,7 @@ import org.synrgy.setara.common.dto.BaseResponse;
 import org.synrgy.setara.contact.dto.FavoriteRequest;
 import org.synrgy.setara.contact.dto.FavoriteResponse;
 import org.synrgy.setara.contact.dto.SavedAccountResponse;
+import org.synrgy.setara.contact.dto.SavedEwalletAndAccountFinalResponse;
 import org.synrgy.setara.contact.service.SavedAccountService;
 
 import java.util.List;
@@ -26,19 +27,16 @@ public class SavedAccountController {
   private final Logger log = LoggerFactory.getLogger(SavedAccountController.class);
   private final SavedAccountService saService;
 
-  @GetMapping(
-          value = "/saved-accounts",
-          produces = MediaType.APPLICATION_JSON_VALUE
-  )
-  public ResponseEntity<List<SavedAccountResponse>> getSavedAccounts(
-          @RequestParam(value = "fav-only", defaultValue = "false") boolean favOnly) {
-    // dummy ownerId, in future use interceptor to get from token
-    UUID ownerId = UUID.randomUUID();
+  @GetMapping("/saved-accounts")
+  public ResponseEntity<BaseResponse<SavedEwalletAndAccountFinalResponse<SavedAccountResponse>>> getSavedAccounts(
+          @RequestHeader("Authorization") String token) {
 
-    log.info("Fetching saved accounts, owner_id=[{}], fav_only=[{}]", ownerId, favOnly);
+    String authToken = token.substring(7);
+    SavedEwalletAndAccountFinalResponse<SavedAccountResponse> savedAccounts = saService.getSavedAccounts(authToken);
 
-    List<SavedAccountResponse> responses = saService.getSavedAccounts(ownerId, favOnly);
-    return ResponseEntity.ok(responses);
+    BaseResponse<SavedEwalletAndAccountFinalResponse<SavedAccountResponse>> response =
+            BaseResponse.success(HttpStatus.OK, savedAccounts, "Success Get Saved Accounts");
+    return ResponseEntity.ok(response);
   }
 
   @PutMapping("/favorite-account")
