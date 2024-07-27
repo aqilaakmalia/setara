@@ -6,32 +6,34 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.synrgy.setara.common.dto.BaseResponse;
 import org.synrgy.setara.contact.dto.FavoriteResponse;
-import org.synrgy.setara.contact.dto.SavedEwalletUserResponse;
+import org.synrgy.setara.contact.dto.SavedEwalletSummaryResponse;
 import org.synrgy.setara.contact.service.SavedEwalletUserService;
-import org.synrgy.setara.user.model.User;
+import org.synrgy.setara.user.repository.UserRepository;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/saved-ewallet-users")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class SavedEwalletUserController {
     private final Logger log = LoggerFactory.getLogger(SavedEwalletUserController.class);
+    private final UserRepository userRepo;
     private final SavedEwalletUserService savedEwalletUserService;
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<SavedEwalletUserResponse>> getSavedEwalletUsersForUser(
-            @PathVariable UUID userId,
-            @RequestParam(value = "favorite", required = false) Boolean favorite) {
-        User user = new User();  // Replace with actual user fetching logic
-        user.setId(userId); // Set user ID
-        List<SavedEwalletUserResponse> responses = savedEwalletUserService.getSavedEwalletUsersForUser(user, favorite);
-        return ResponseEntity.ok(responses);
+    @GetMapping("/saved-ewallet-users")
+    public ResponseEntity<BaseResponse<SavedEwalletSummaryResponse>> getSavedEwallets(
+            @RequestHeader("Authorization") String token) {
+
+        String authToken = token.substring(7);
+        SavedEwalletSummaryResponse savedEwallets = savedEwalletUserService.getSavedEwalletUsersForUser(authToken);
+
+        BaseResponse<SavedEwalletSummaryResponse> response = BaseResponse.success(HttpStatus.OK, savedEwallets, "Success Get Saved E-Wallets");
+        return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/favorite/{id}")
+    @PutMapping("/favorite-ewallets/{id}")
     public ResponseEntity<FavoriteResponse> putFavoriteEwalletUser(
             @PathVariable UUID id,
             @RequestParam boolean isFavorite) {

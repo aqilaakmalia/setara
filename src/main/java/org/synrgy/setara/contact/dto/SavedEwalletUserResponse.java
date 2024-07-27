@@ -1,7 +1,6 @@
 package org.synrgy.setara.contact.dto;
 
 import lombok.*;
-
 import java.util.UUID;
 
 @Data
@@ -11,7 +10,6 @@ import java.util.UUID;
 @Getter
 @Setter
 public class SavedEwalletUserResponse {
-
     private UUID id;
     private UUID ownerId;
     private UUID ewalletUserId;
@@ -20,5 +18,4 @@ public class SavedEwalletUserResponse {
     private String ewalletUserImagePath;
     private String ewalletUserPhoneNumber;
     private String ewalletName;
-
 }

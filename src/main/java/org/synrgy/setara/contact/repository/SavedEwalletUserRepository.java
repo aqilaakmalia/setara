@@ -28,30 +28,16 @@ public interface SavedEwalletUserRepository extends JpaRepository<SavedEwalletUs
   @Query("UPDATE SavedEwalletUser su SET su.deletedAt = null WHERE su.id = :id")
   void restoreById(@Param("id") UUID id);
 
-  @Query("SELECT new org.synrgy.setara.contact.dto.SavedEwalletUserResponse(s.id, s.owner.id, eu.id, s.favorite, eu.name, eu.imagePath, eu.phoneNumber, e.name) " +
-          "FROM SavedEwalletUser s " +
-          "JOIN s.ewalletUser eu " +
-          "JOIN eu.ewallet e " +
-          "WHERE s.owner.id = :ownerId")
-  List<SavedEwalletUserResponse> findSavedEwalletUsersWithDetails(@Param("ownerId") UUID ownerId);
-
-  @Query("SELECT new org.synrgy.setara.contact.dto.SavedEwalletUserResponse(s.id, s.owner.id, eu.id, s.favorite, eu.name, eu.imagePath, eu.phoneNumber, e.name) " +
-          "FROM SavedEwalletUser s " +
-          "JOIN s.ewalletUser eu " +
-          "JOIN eu.ewallet e " +
-          "WHERE s.owner.id = :ownerId AND s.favorite = :favorite")
-  List<SavedEwalletUserResponse> findSavedEwalletUsersWithDetailsAndFavorite(@Param("ownerId") UUID ownerId, @Param("favorite") boolean favorite);
-
   boolean existsByOwnerAndEwalletUser(User owner, EwalletUser ewalletUser);
 
   List<SavedEwalletUser> findByOwnerId(UUID id);
 
   List<SavedEwalletUser> findByOwnerIdAndFavorite(UUID ownerId, boolean favorite);
 
-  @Query("SELECT COUNT(s) FROM SavedEwalletUser s WHERE s.owner.id = :ownerId AND s.favorite = true")
+  @Query("SELECT COUNT(s) FROM SavedEwalletUser s WHERE s.owner.id = :ownerId AND s.favorite = true AND s.deletedAt IS NULL")
   Long countFavoriteByOwner(@Param("ownerId") UUID ownerId);
 
-  @Query("SELECT COUNT(s) FROM SavedEwalletUser s WHERE s.owner.id = :ownerId AND s.favorite = false")
+  @Query("SELECT COUNT(s) FROM SavedEwalletUser s WHERE s.owner.id = :ownerId AND s.favorite = false AND s.deletedAt IS NULL")
   Long countNotFavoriteByOwner(@Param("ownerId") UUID ownerId);
 
   @Modifying
