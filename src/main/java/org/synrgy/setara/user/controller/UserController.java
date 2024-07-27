@@ -21,9 +21,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/getBalance")
-    public ResponseEntity<BaseResponse<UserBalanceResponse>> getBalance(@RequestHeader("Authorization") String token) {
-        String authToken = token.substring(7);
-        UserBalanceResponse userBalanceResponse = userService.getBalance(authToken);
+    public ResponseEntity<BaseResponse<UserBalanceResponse>> getBalance() {
+        UserBalanceResponse userBalanceResponse = userService.getBalance();
         BaseResponse<UserBalanceResponse> response = BaseResponse.success(HttpStatus.OK, userBalanceResponse, "Success Get Balance");
         return ResponseEntity.ok(response);
     }

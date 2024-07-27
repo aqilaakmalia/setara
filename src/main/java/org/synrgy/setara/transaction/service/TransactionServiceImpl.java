@@ -43,7 +43,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
-    public TopUpResponse topUp(TopUpRequest request, String token) {
+    public TopUpResponse topUp(TopUpRequest request) {
         String signature = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findBySignature(signature)
                 .orElseThrow(() -> new TransactionExceptions.UserNotFoundException("User with signature " + signature + " not found"));
@@ -71,7 +71,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
-    public TransferResponse transferWithinBCA(TransferRequest request, String authToken) {
+    public TransferResponse transferWithinBCA(TransferRequest request) {
         String signature = SecurityContextHolder.getContext().getAuthentication().getName();
         User sourceUser = userRepository.findBySignature(signature)
                 .orElseThrow(() -> new TransactionExceptions.UserNotFoundException("User with signature " + signature + " not found"));
@@ -245,7 +245,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public MonthlyReportResponse getMonthlyReport(String token, int month, int year) {
+    public MonthlyReportResponse getMonthlyReport(int month, int year) {
         String signature = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findBySignature(signature)
                 .orElseThrow(() -> new TransactionExceptions.UserNotFoundException("User with signature " + signature + " not found"));

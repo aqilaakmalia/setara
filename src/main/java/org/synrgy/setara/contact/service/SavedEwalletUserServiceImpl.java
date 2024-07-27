@@ -64,7 +64,7 @@ public class SavedEwalletUserServiceImpl implements SavedEwalletUserService {
 
     @Override
     @Transactional
-    public SavedEwalletAndAccountFinalResponse<SavedEwalletUserResponse> getSavedEwalletUsers(String authToken) {
+    public SavedEwalletAndAccountFinalResponse<SavedEwalletUserResponse> getSavedEwalletUsers() {
         String signature = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User user = userRepo.findBySignature(signature)

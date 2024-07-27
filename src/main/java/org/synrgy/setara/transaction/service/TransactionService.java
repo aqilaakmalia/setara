@@ -3,9 +3,9 @@ package org.synrgy.setara.transaction.service;
 import org.synrgy.setara.transaction.dto.*;
 
 public interface TransactionService {
-    TopUpResponse topUp(TopUpRequest request, String token);
+    TopUpResponse topUp(TopUpRequest request);
 
-    TransferResponse transferWithinBCA(TransferRequest request, String authToken);
+    TransferResponse transferWithinBCA(TransferRequest request);
 
-    MonthlyReportResponse getMonthlyReport(String token, int month, int year);
+    MonthlyReportResponse getMonthlyReport(int month, int year);
 }
