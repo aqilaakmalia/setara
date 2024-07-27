@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.synrgy.setara.common.dto.BaseResponse;
 import org.synrgy.setara.transaction.exception.TransactionExceptions;
 
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "org.synrgy.setara.transaction")
 public class TransactionAdvice {
 
     @ExceptionHandler(TransactionExceptions.UserNotFoundException.class)

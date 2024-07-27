@@ -37,4 +37,11 @@ public class TransactionController {
         BaseResponse<MonthlyReportResponse> response = BaseResponse.success(HttpStatus.OK, monthlyReportResponse, "Success Get Monthly Report");
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/merchant-transaction")
+    public ResponseEntity<BaseResponse<MerchantTransactionResponse>> merchantTransaction(@RequestBody MerchantTransactionRequest request, @RequestHeader("Authorization") String token) {
+        String authToken = token.substring(7);
+        MerchantTransactionResponse response = transactionService.merchantTransaction(request, authToken);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Transaction successful"));
+    }
 }
