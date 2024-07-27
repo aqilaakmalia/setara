@@ -11,7 +11,7 @@ import org.synrgy.setara.common.dto.BaseResponse;
 
 import javax.naming.AuthenticationException;
 
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "org.synrgy.setara.auth")
 public class AuthenticationAdvice {
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationAdvice.class);
 

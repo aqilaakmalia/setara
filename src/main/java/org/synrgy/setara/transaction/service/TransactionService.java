@@ -8,4 +8,6 @@ public interface TransactionService {
     TransferResponse transferWithinBCA(TransferRequest request);
 
     MonthlyReportResponse getMonthlyReport(int month, int year);
+
+    MerchantTransactionResponse merchantTransaction(MerchantTransactionRequest request, String authToken);
 }

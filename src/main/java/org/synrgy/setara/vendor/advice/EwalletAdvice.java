@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.synrgy.setara.common.dto.BaseResponse;
 import org.synrgy.setara.vendor.exception.EwalletNotFoundException;
 
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "org.synrgy.setara.vendor")
 public class EwalletAdvice {
     private static final Logger logger = LoggerFactory.getLogger(EwalletAdvice.class);
 
