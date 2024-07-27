@@ -4,9 +4,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.synrgy.setara.contact.dto.FavoriteResponse;
+import org.synrgy.setara.contact.dto.SavedEwalletSummaryResponse;
 import org.synrgy.setara.contact.dto.SavedEwalletUserResponse;
+import org.synrgy.setara.contact.exception.SavedEwalletExceptions;
 import org.synrgy.setara.contact.exception.SavedEwalletExceptions.*;
 import org.synrgy.setara.contact.model.SavedEwalletUser;
 import org.synrgy.setara.contact.repository.SavedEwalletUserRepository;
@@ -15,10 +18,7 @@ import org.synrgy.setara.user.model.User;
 import org.synrgy.setara.user.repository.EwalletUserRepository;
 import org.synrgy.setara.user.repository.UserRepository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -63,29 +63,46 @@ public class SavedEwalletUserServiceImpl implements SavedEwalletUserService {
     }
 
     @Override
-    public List<SavedEwalletUserResponse> getSavedEwalletUsersForUser(User user, Boolean favorite) {
-        List<SavedEwalletUser> savedEwalletUsers;
-        if (favorite != null) {
-            savedEwalletUsers = savedEwalletUserRepo.findByOwnerIdAndFavorite(user.getId(), favorite);
-        } else {
-            savedEwalletUsers = savedEwalletUserRepo.findByOwnerId(user.getId());
-        }
+    public SavedEwalletSummaryResponse getSavedEwalletUsersForUser(String authToken) {
+        String signature = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        long favoriteCount = savedEwalletUsers.stream().filter(SavedEwalletUser::isFavorite).count();
-        long notFavoriteCount = savedEwalletUsers.size() - favoriteCount;
+        User user = userRepo.findBySignature(signature)
+                .orElseThrow(() -> new SavedEwalletExceptions.UserNotFoundException("User with signature " + signature + " not found"));
 
-        return savedEwalletUsers.stream()
-                .map(saved -> new SavedEwalletUserResponse(
-                        saved.getId(),
-                        saved.getOwner().getId(),
-                        saved.getEwalletUser().getId(),
-                        saved.isFavorite(),
-                        saved.getEwalletUser().getName(),
-                        saved.getEwalletUser().getImagePath(),
-                        saved.getEwalletUser().getPhoneNumber(),
-                        saved.getEwalletUser().getEwallet().getName()
+        List<SavedEwalletUser> savedEwalletUsers = savedEwalletUserRepo.findByOwnerId(user.getId());
+
+        List<SavedEwalletUserResponse> favoriteEwalletUsers = savedEwalletUsers.stream()
+                .filter(SavedEwalletUser::isFavorite)
+                .map(savedUser -> new SavedEwalletUserResponse(
+                        savedUser.getId(),
+                        savedUser.getOwner().getId(),
+                        savedUser.getEwalletUser().getId(),
+                        savedUser.isFavorite(),
+                        savedUser.getEwalletUser().getName(),
+                        savedUser.getEwalletUser().getImagePath(),
+                        savedUser.getEwalletUser().getPhoneNumber(),
+                        savedUser.getEwalletUser().getEwallet().getName()
                 ))
-                .collect(Collectors.toList());
+                .toList();
+
+        List<SavedEwalletUserResponse> nonFavoriteEwalletUsers = savedEwalletUsers.stream()
+                .filter(savedUser -> !savedUser.isFavorite())
+                .map(savedUser -> new SavedEwalletUserResponse(
+                        savedUser.getId(),
+                        savedUser.getOwner().getId(),
+                        savedUser.getEwalletUser().getId(),
+                        savedUser.isFavorite(),
+                        savedUser.getEwalletUser().getName(),
+                        savedUser.getEwalletUser().getImagePath(),
+                        savedUser.getEwalletUser().getPhoneNumber(),
+                        savedUser.getEwalletUser().getEwallet().getName()
+                ))
+                .toList();
+
+        long favoriteCount = favoriteEwalletUsers.size();
+        long nonFavoriteCount = nonFavoriteEwalletUsers.size();
+
+        return new SavedEwalletSummaryResponse(favoriteCount, nonFavoriteCount, favoriteEwalletUsers, nonFavoriteEwalletUsers);
     }
 
     @Override
