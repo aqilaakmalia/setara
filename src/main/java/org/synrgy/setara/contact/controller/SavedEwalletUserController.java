@@ -8,9 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.synrgy.setara.common.dto.BaseResponse;
 import org.synrgy.setara.contact.dto.FavoriteResponse;
-import org.synrgy.setara.contact.dto.SavedEwalletSummaryResponse;
+import org.synrgy.setara.contact.dto.SavedEwalletAndAccountFinalResponse;
+import org.synrgy.setara.contact.dto.SavedEwalletUserResponse;
 import org.synrgy.setara.contact.service.SavedEwalletUserService;
-import org.synrgy.setara.user.repository.UserRepository;
 
 import java.util.UUID;
 
@@ -19,17 +19,19 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SavedEwalletUserController {
     private final Logger log = LoggerFactory.getLogger(SavedEwalletUserController.class);
-    private final UserRepository userRepo;
     private final SavedEwalletUserService savedEwalletUserService;
 
     @GetMapping("/saved-ewallet-users")
-    public ResponseEntity<BaseResponse<SavedEwalletSummaryResponse>> getSavedEwallets(
+    public ResponseEntity<BaseResponse<SavedEwalletAndAccountFinalResponse<SavedEwalletUserResponse>>> getSavedEwallets(
             @RequestHeader("Authorization") String token) {
 
         String authToken = token.substring(7);
-        SavedEwalletSummaryResponse savedEwallets = savedEwalletUserService.getSavedEwalletUsersForUser(authToken);
+        SavedEwalletAndAccountFinalResponse<SavedEwalletUserResponse> savedEwallets =
+                savedEwalletUserService.getSavedEwalletUsers(authToken);
 
-        BaseResponse<SavedEwalletSummaryResponse> response = BaseResponse.success(HttpStatus.OK, savedEwallets, "Success Get Saved E-Wallets");
+        BaseResponse<SavedEwalletAndAccountFinalResponse<SavedEwalletUserResponse>> response =
+                BaseResponse.success(HttpStatus.OK, savedEwallets, "Success Get Saved E-Wallets");
+
         return ResponseEntity.ok(response);
     }
 

@@ -1,6 +1,7 @@
 package org.synrgy.setara.contact.dto;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import lombok.*;
 import java.util.List;
 
@@ -8,12 +9,10 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 @JsonPropertyOrder({"total_favorites", "total_saved", "favorites", "saved"})
-public class SavedEwalletSummaryResponse {
+public class SavedEwalletAndAccountFinalResponse<T> {
     private long totalFavorites;
     private long totalSaved;
-    private List<SavedEwalletUserResponse> favorites;
-    private List<SavedEwalletUserResponse> saved;
+    private List<T> favorites;
+    private List<T> saved;
 }
