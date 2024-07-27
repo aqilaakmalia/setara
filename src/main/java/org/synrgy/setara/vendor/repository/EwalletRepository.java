@@ -22,9 +22,6 @@ public interface EwalletRepository extends JpaRepository<Ewallet, UUID> {
   @Query("UPDATE Ewallet e SET e.deletedAt = null WHERE e.id = :id")
   void restoreById(@Param("id") UUID id);
 
-  @Query("SELECT e FROM Ewallet e WHERE e.deletedAt IS NULL")
-  List<Ewallet> findAllEwallet();
-
   boolean existsByName(String name);
 
   Optional<Ewallet> findByName(String name);
