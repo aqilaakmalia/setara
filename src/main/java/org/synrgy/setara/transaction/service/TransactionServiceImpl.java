@@ -21,10 +21,13 @@ import org.synrgy.setara.user.model.User;
 import org.synrgy.setara.user.repository.EwalletUserRepository;
 import org.synrgy.setara.user.repository.UserRepository;
 import org.synrgy.setara.vendor.model.Bank;
+import org.synrgy.setara.vendor.model.Merchant;
+import org.synrgy.setara.vendor.repository.MerchantRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +40,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final SavedEwalletUserRepository savedEwalletUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final SavedAccountRepository savedAccountRepository;
+    private final MerchantRepository merchantRepository;
     private static final BigDecimal ADMIN_FEE = BigDecimal.valueOf(1000);
     private static final BigDecimal MINIMUM_TOP_UP_AMOUNT = BigDecimal.valueOf(10000);
     private static final BigDecimal MINIMUM_TRANSFER_AMOUNT = BigDecimal.valueOf(10000);
@@ -89,7 +93,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         validateMpin(request.getMpin(), sourceUser);
 
-        BigDecimal totalAmount = request.getAmount(); // No admin fee for this transfer type
+        BigDecimal totalAmount = request.getAmount();
 
         checkSufficientBalance(sourceUser, totalAmount);
 
@@ -111,7 +115,6 @@ public class TransactionServiceImpl implements TransactionService {
                 .build();
         transactionRepository.save(transaction);
 
-        // Create deposit transaction for destination user
         String depositReferenceNumber = TransactionUtils.generateReferenceNumber("DPT");
         String depositUniqueCode = TransactionUtils.generateUniqueCode(depositReferenceNumber);
 
@@ -126,7 +129,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .uniqueCode(depositUniqueCode)
                 .referenceNumber(depositReferenceNumber)
                 .note(request.getNote())
-                .time(LocalDateTime.now())  // Use the same time as the transfer transaction
+                .time(LocalDateTime.now())
                 .build();
         transactionRepository.save(depositTransaction);
 
@@ -281,5 +284,82 @@ public class TransactionServiceImpl implements TransactionService {
                 .total(income.subtract(expense))
                 .build();
     }
+
+    @Override
+    @Transactional
+    public MerchantTransactionResponse merchantTransaction(MerchantTransactionRequest request, String token) {
+        try {
+            String signature = SecurityContextHolder.getContext().getAuthentication().getName();
+            User sourceUser = userRepository.findBySignature(signature)
+                    .orElseThrow(() -> new TransactionExceptions.UserNotFoundException("User with signature " + signature + " not found"));
+
+            validateMpin(request.getMpin(), sourceUser);
+
+            UUID merchantId;
+            try {
+                merchantId = UUID.fromString(String.valueOf(request.getIdQris()));
+            } catch (IllegalArgumentException e) {
+                throw new TransactionExceptions.MerchantNotFoundException("Invalid QRIS ID format: " + request.getIdQris());
+            }
+
+            Merchant destinationMerchant = merchantRepository.findById(merchantId)
+                    .orElseThrow(() -> new TransactionExceptions.MerchantNotFoundException("Merchant not found with id " + request.getIdQris()));
+
+            BigDecimal totalAmount = request.getAmount();
+
+            checkSufficientBalance(sourceUser, totalAmount);
+
+            String referenceNumber = TransactionUtils.generateReferenceNumber("MERCH");
+            String uniqueCode = TransactionUtils.generateUniqueCode(referenceNumber);
+
+            Transaction transaction = Transaction.builder()
+                    .user(sourceUser)
+                    .destinationIdQris(destinationMerchant)
+                    .type(TransactionType.QRPAYMENT)
+                    .amount(request.getAmount())
+                    .adminFee(BigDecimal.ZERO)
+                    .totalamount(totalAmount)
+                    .uniqueCode(uniqueCode)
+                    .referenceNumber(referenceNumber)
+                    .note(request.getNote())
+                    .time(LocalDateTime.now())
+                    .build();
+            transactionRepository.save(transaction);
+
+            sourceUser.setBalance(sourceUser.getBalance().subtract(totalAmount));
+            userRepository.save(sourceUser);
+
+            return createTransactionResponse(transaction, sourceUser, destinationMerchant);
+        } catch (Exception e) {
+            log.error("Error processing merchant transaction", e);
+            throw new RuntimeException("An unexpected error occurred", e);
+        }
+    }
+
+    private MerchantTransactionResponse createTransactionResponse(Transaction transaction, User sourceUser, Merchant destinationMerchant) {
+        Bank bank = sourceUser.getBank();
+        String bankName = bank != null ? bank.getName() : "Unknown";
+
+        return MerchantTransactionResponse.builder()
+                .sourceUser(MerchantTransactionResponse.SourceUserDTO.builder()
+                        .name(sourceUser.getName())
+                        .bank(bankName)
+                        .accountNumber(sourceUser.getAccountNumber())
+                        .imagePath(sourceUser.getImagePath())
+                        .build())
+                .destinationUser(MerchantTransactionResponse.DestinationUserDTO.builder()
+                        .name(destinationMerchant.getName())
+                        .nameMerchant(destinationMerchant.getName())
+                        .nmid(destinationMerchant.getNmid())
+                        .terminalId(destinationMerchant.getTerminalId())
+                        .imagePath(destinationMerchant.getImagePath())
+                        .build())
+                .amount(transaction.getAmount())
+                .adminFee(transaction.getAdminFee())
+                .totalAmount(transaction.getTotalamount())
+                .note(transaction.getNote())
+                .build();
+    }
+
 }
 
