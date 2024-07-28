@@ -24,7 +24,6 @@ import java.util.UUID;
 @RequestMapping("/api/v1")
 public class SavedAccountController {
 
-  private final Logger log = LoggerFactory.getLogger(SavedAccountController.class);
   private final SavedAccountService saService;
 
   @GetMapping("/saved-accounts")
