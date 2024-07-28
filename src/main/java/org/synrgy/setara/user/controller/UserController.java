@@ -31,16 +31,14 @@ public class UserController {
     }
 
     @GetMapping("/search-no-rek/{no}")
-    public ResponseEntity<BaseResponse<User>> searchNoRek(@RequestHeader("Authorization") String token, @PathVariable String no, @RequestBody Map<String, Object> request) {
-        String authToken = token.substring(7);
+    public ResponseEntity<BaseResponse<User>> searchNoRek(@PathVariable String no, @RequestBody Map<String, Object> request) {
         User userResponse = userService.searchUserByNorek(no, (String) request.get("bank"));
         BaseResponse<User> response = BaseResponse.success(HttpStatus.OK, userResponse, "Success Get No Rekening");
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/search-no-ewallet/{no}")
-    public ResponseEntity<BaseResponse<EwalletUser>> searchNoEwallet(@RequestHeader("Authorization") String token, @PathVariable String no, @RequestBody Map<String, Object> request) {
-        String authToken = token.substring(7);
+    public ResponseEntity<BaseResponse<EwalletUser>> searchNoEwallet(@PathVariable String no, @RequestBody Map<String, Object> request) {
         EwalletUser userResponse = ewalletUserService.searchEwalletUser(no, (String) request.get("ewallet"));
         BaseResponse<EwalletUser> response = BaseResponse.success(HttpStatus.OK, userResponse, "Success Get Ewallet");
         return ResponseEntity.ok(response);
