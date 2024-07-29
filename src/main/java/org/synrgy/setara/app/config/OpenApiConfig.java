@@ -45,8 +45,8 @@ public class OpenApiConfig {
                 .title("Setara")
                 .version("1.0")
                 .contact(contact)
-                .description("This API exposes endpoints to manage binarfud.")
-                .termsOfService("https://www.binarfud.com/terms")
+                .description("This API exposes endpoints to manage setara.")
+                .termsOfService("https://www.setara.com/terms")
                 .license(mitLicense);
 
         SecurityScheme securityScheme = new SecurityScheme()
