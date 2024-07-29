@@ -1,6 +1,5 @@
 package org.synrgy.setara.security.service;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -25,12 +24,6 @@ public class JwtServiceImpl implements JwtService {
 
   @Value("${security.jwt.token.expiration}")
   private String jwtExpirationFromProperties;
-
-//  private final Dotenv dotenv;
-
-//  public JwtServiceImpl() {
-//    this.dotenv = Dotenv.load();
-//  }
 
   @Override
   public String extractUsername(String token) {
