@@ -26,11 +26,11 @@ public class JwtServiceImpl implements JwtService {
   @Value("${security.jwt.token.expiration}")
   private String jwtExpirationFromProperties;
 
-  private final Dotenv dotenv;
+//  private final Dotenv dotenv;
 
-  public JwtServiceImpl() {
-    this.dotenv = Dotenv.load();
-  }
+//  public JwtServiceImpl() {
+//    this.dotenv = Dotenv.load();
+//  }
 
   @Override
   public String extractUsername(String token) {
@@ -81,7 +81,7 @@ public class JwtServiceImpl implements JwtService {
   }
 
   private long getJwtExpiration() {
-    String jwtExpiration = jwtExpirationFromProperties != null ? jwtExpirationFromProperties : dotenv.get("JWT_EXPIRATION");
+    String jwtExpiration = jwtExpirationFromProperties != null ? jwtExpirationFromProperties : System.getenv("JWT_EXPIRATION");
     return Long.parseLong(jwtExpiration);
   }
 
